@@ -42,13 +42,20 @@ describe('minesweeper', () => {
   });
 
   describe('in test mode (with fixed mines)', () => {
+    let cellStateTransitions = null;
     const options = toOptions(`
       . . . .
       . * * .
       . . . .
     `);
 
-    beforeEach(() => { game = minesweeper(options); });
+    beforeEach(() => {
+      game = minesweeper(options);
+      cellStateTransitions = [];
+      game.onCellStateChange((cell, state, previous_state) => {
+        cellStateTransitions.push([cell, state, previous_state]);
+      });
+    });
 
     it('should have initial state', () => {
       expect(game.finished()).toBeFalsy();
@@ -63,6 +70,9 @@ describe('minesweeper', () => {
       expect(game.state()).toBe(gameState.LOST);
       expect(game.cellState(cell)).toBe(fieldState.MINE);
       expect(game.finished()).toBeTruthy();
+      expect(cellStateTransitions).toEqual([
+        [cell, fieldState.MINE, fieldState.UNKNOWN]
+      ]);
     });
 
     it('should make no state changes when game is finished', () => {
@@ -85,17 +95,35 @@ describe('minesweeper', () => {
   });
 
   describe('in test mode (with fixed mines)', () => {
+    let cellStateTransitions = null;
+
     const options = toOptions(`
       . . .
       . . .
       . . *
     `);
 
-    beforeEach(() => { game = minesweeper(options); });
+    beforeEach(() => {
+      game = minesweeper(options);
+      cellStateTransitions = [];
+      game.onCellStateChange((cell, state, previous_state) => {
+        cellStateTransitions.push([cell, state, previous_state]);
+      });
+    });
 
     it('should recursively reveal mines', () => {
       expect(game.reveal([0, 0])).toBe(gameState.WON);
       expect(game.state()).toBe(gameState.WON);
+      expect(cellStateTransitions).toEqual([
+        [[0, 0], '0', fieldState.UNKNOWN],
+        [[0, 1], '0', fieldState.UNKNOWN],
+        [[0, 2], '0', fieldState.UNKNOWN],
+        [[1, 1], '1', fieldState.UNKNOWN],
+        [[1, 2], '1', fieldState.UNKNOWN],
+        [[1, 0], '0', fieldState.UNKNOWN],
+        [[2, 0], '0', fieldState.UNKNOWN],
+        [[2, 1], '1', fieldState.UNKNOWN]
+      ]);
     });
   });
 });

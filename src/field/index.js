@@ -25,17 +25,22 @@ export default (dimensions) => {
 
   const revealed = ([row, column]) => !isNaN(parseInt(state[row][column]));
 
-  const reveal = (cell) => {
+  const notifyListeners = (listeners, cell, state, previous_state) => map(listeners, (cb) => { cb(cell, state, previous_state); });
+
+  const reveal = (cell, listeners) => {
     if (revealed(cell)) return false;
     const [row, column] = cell;
+    const previous_state = state[row][column];
     const revealedMine = isMine(cell);
     if (revealedMine) {
       state[row][column] = fieldState.MINE;
+      notifyListeners(listeners, cell, fieldState.MINE, previous_state);
     } else {
       const neighbours = cellNeighbours(dimensions, cell);
       const mine_count = neighbouringMines(neighbours).length;
       state[row][column] = mine_count.toString();
-      if (mine_count === 0) map(neighbours, reveal);
+      notifyListeners(listeners, cell, mine_count.toString(), previous_state);
+      if (mine_count === 0) map(neighbours, (neighbour) => { reveal(neighbour, listeners); });
     }
     return revealedMine;
   };

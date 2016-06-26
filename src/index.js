@@ -6,6 +6,7 @@ import {assign, map} from 'lodash';
 
 const minesweeper = (options) => {
   const gameStateChangeListeners = [];
+  const cellStateChangeListeners = [];
   const config = configuration(options);
   let state = gameState.NOT_STARTED;
   const visibleField = field(config.dimensions);
@@ -26,7 +27,7 @@ const minesweeper = (options) => {
     const previous_state = state;
     if (finished()) return state;
     ensureMinesHaveBeenPlaced(cell);
-    if (visibleField.reveal(cell)) {
+    if (visibleField.reveal(cell, cellStateChangeListeners)) {
       state = gameState.LOST;
     } else {
       state = visibleField.allCellsWithoutMinesRevealed() ? gameState.WON : gameState.STARTED;
@@ -35,7 +36,9 @@ const minesweeper = (options) => {
     return state;
   };
 
-  const onGameStateChange = (callback) => { gameStateChangeListeners.push(callback); };
+  const onGameStateChange = (listener) => { gameStateChangeListeners.push(listener); };
+
+  const onCellStateChange = (listener) => { cellStateChangeListeners.push(listener); };
 
   return assign(config, {
     finished: finished,
@@ -43,7 +46,8 @@ const minesweeper = (options) => {
     cellState: visibleField.cellState,
     reveal: reveal,
     renderAsString: visibleField.renderAsString,
-    onGameStateChange: onGameStateChange
+    onGameStateChange: onGameStateChange,
+    onCellStateChange: onCellStateChange
   });
 };
 
