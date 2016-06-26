@@ -1,10 +1,15 @@
 {
   "name": "mines",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "pure js minesweeper game implementation",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "scripts": {
+    "dist": "babel src --presets babel-preset-es2015 --ignore '**/*-spec.js' --out-dir dist",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/minesweeper/mines"
   },
   "keywords": [
     "mines",
@@ -12,5 +17,9 @@
     "game"
   ],
   "author": "Mark Ryall <mark@ryall.name> (http://mark.ryall.name)",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.10.1",
+    "babel-preset-es2015": "^6.9.0"
+  }
 }
