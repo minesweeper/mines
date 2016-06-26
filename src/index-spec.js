@@ -77,4 +77,19 @@ describe('minesweeper', () => {
       expect(game.finished()).toBeFalsy();
     });
   });
+
+  describe('in test mode (with fixed mines)', () => {
+    const options = toOptions(`
+      . . .
+      . . .
+      . . *
+    `);
+
+    beforeEach(() => { game = minesweeper(options); });
+
+    it('should recursively reveal mines', () => {
+      expect(game.reveal([0, 0])).toBe(gameState.WON);
+      expect(game.state()).toBe(gameState.WON);
+    });
+  });
 });

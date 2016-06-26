@@ -1,7 +1,7 @@
 import fieldState from '../fieldState';
 import cellNeighbours from './cellNeighbours';
 import renderAsString from './renderAsString';
-import {times, isNil, isEqual, filter, some, isNaN} from 'lodash';
+import {times, isNil, isEqual, filter, some, isNaN, map} from 'lodash';
 
 export default (dimensions) => {
   const [row_count, column_count] = dimensions;
@@ -18,28 +18,33 @@ export default (dimensions) => {
   });
 
   const isMine = (cell) => some(mines, (mine) => isEqual(cell, mine));
+
   const neighbouringMines = (neighbours) => filter(neighbours, (neighbour) => isMine(neighbour));
 
   const cellState = ([row, column]) => state[row][column];
+
+  const revealed = ([row, column]) => !isNaN(parseInt(state[row][column]));
+
   const reveal = (cell) => {
+    if (revealed(cell)) return false;
     const [row, column] = cell;
     const revealedMine = isMine(cell);
     if (revealedMine) {
       state[row][column] = fieldState.MINE;
     } else {
       const neighbours = cellNeighbours(dimensions, cell);
-      state[row][column] = neighbouringMines(neighbours).length.toString();
+      const mine_count = neighbouringMines(neighbours).length;
+      state[row][column] = mine_count.toString();
+      if (mine_count === 0) map(neighbours, reveal);
     }
     return revealedMine;
   };
-
-  const isRevealedCell = ([row, column]) => !isNaN(parseInt(state[row][column]));
 
   const revealedCells = () => {
     let count = 0;
     times(row_count, (row) => {
       times(column_count, (column) => {
-        if (isRevealedCell([row, column])) count += 1;
+        if (revealed([row, column])) count += 1;
       });
     });
     return count;
@@ -52,6 +57,7 @@ export default (dimensions) => {
     placeMines: (m) => { mines = m; },
     cellState: cellState,
     reveal: reveal,
+    revealed: revealed,
     renderAsString: () => renderAsString(state),
     allCellsWithoutMinesRevealed: allCellsWithoutMinesRevealed
   };

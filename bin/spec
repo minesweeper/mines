@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -e
+
+mocha --require config/mocha-compile.js --require config/mocha-init.js $*

@@ -8,6 +8,21 @@ A pure JS implementation of the minesweeper game.
 npm install mines --save
 ```
 
+## Usage
+
+```javascript
+var m = mines();
+m.onGameStateChange(
+  function (state, oldState) { console.log('game changed', oldState, state); }
+);
+m.onCellStateChange(
+  function (cell, state, oldState) { console.log('cell state', cell, oldState, state); }
+);
+m.state();
+m.renderAsString();
+m.reveal([4, 4]);
+```
+
 ## Release History
 
 * 0.0.1 Initial release (that does nothing)
