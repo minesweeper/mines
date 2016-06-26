@@ -2,9 +2,10 @@ import configuration from './configuration';
 import field from './field';
 import gameState from './gameState';
 import randomlyPlaceMines from './randomlyPlaceMines';
-import {assign} from 'lodash';
+import {assign, map} from 'lodash';
 
 const minesweeper = (options) => {
+  const gameStateChangeListeners = [];
   const config = configuration(options);
   let state = gameState.NOT_STARTED;
   const visibleField = field(config.dimensions);
@@ -17,7 +18,12 @@ const minesweeper = (options) => {
     }
   };
 
+  const notifyGameStateChangeListeners = (state, previous_state) => map(gameStateChangeListeners, (cb) => {
+    cb(state, previous_state);
+  });
+
   const reveal = (cell) => {
+    const previous_state = state;
     if (finished()) return state;
     ensureMinesHaveBeenPlaced(cell);
     if (visibleField.reveal(cell)) {
@@ -25,15 +31,19 @@ const minesweeper = (options) => {
     } else {
       state = visibleField.allCellsWithoutMinesRevealed() ? gameState.WON : gameState.STARTED;
     }
+    notifyGameStateChangeListeners(state, previous_state);
     return state;
   };
+
+  const onGameStateChange = (callback) => { gameStateChangeListeners.push(callback); };
 
   return assign(config, {
     finished: finished,
     state: () => state,
     cellState: visibleField.cellState,
     reveal: reveal,
-    renderAsString: visibleField.renderAsString
+    renderAsString: visibleField.renderAsString,
+    onGameStateChange: onGameStateChange
   });
 };
 

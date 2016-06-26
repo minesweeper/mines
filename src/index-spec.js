@@ -15,9 +15,14 @@ describe('minesweeper', () => {
   });
 
   describe('with 1 x 2 and 1 mine', () => {
+    let gameStateTransitions = null;
     const options = {dimensions: [1, 2], mine_count: 1};
 
-    beforeEach(() => { game = minesweeper(options); });
+    beforeEach(() => {
+      game = minesweeper(options);
+      gameStateTransitions = [];
+      game.onGameStateChange((state, previous_state) => { gameStateTransitions.push([state, previous_state]); });
+    });
 
     it('should have initial state for configured game', () => {
       expect(game.finished()).toBeFalsy();
@@ -29,6 +34,7 @@ describe('minesweeper', () => {
       const cell = [0, 0];
       expect(game.cellState(cell)).toBe(fieldState.UNKNOWN);
       expect(game.reveal(cell)).toBe(gameState.WON);
+      expect(gameStateTransitions).toEqual([[gameState.WON, gameState.NOT_STARTED]]);
       expect(game.state()).toBe(gameState.WON);
       expect(game.cellState(cell)).toBe('1');
       expect(game.finished()).toBeTruthy();
