@@ -11,9 +11,20 @@ npm install mines --save
 ## Usage
 
 ```javascript
+var mines = require('./dist');
+```
+
+```javascript
+var mines = require('mines');
+```
+
+```javascript
 var m = mines();
 m.onGameStateChange(
-  function (state, oldState) { console.log('game changed', oldState, state); }
+  function (state, oldState) {
+    console.log('game changed', oldState, state);
+    console.log(m.renderAsString());
+  }
 );
 m.onCellStateChange(
   function (cell, state, oldState) { console.log('cell state', cell, oldState, state); }

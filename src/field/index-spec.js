@@ -33,12 +33,12 @@ describe('field', () => {
 
       cell = [0, 1];
       assert(!testField.reveal(cell));
-      assert.equal(testField.cellState(cell), '1');
+      assert.equal(testField.cellState(cell), fieldState[1]);
       assert.equal(false, testField.allCellsWithoutMinesRevealed());
 
       cell = [0, 2];
       assert(!testField.reveal(cell));
-      assert.equal(testField.cellState(cell), '0');
+      assert.equal(testField.cellState(cell), fieldState[0]);
       assert(testField.allCellsWithoutMinesRevealed());
     });
   });

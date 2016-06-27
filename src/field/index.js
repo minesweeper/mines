@@ -1,7 +1,7 @@
 import fieldState from '../fieldState';
 import cellNeighbours from './cellNeighbours';
 import renderAsString from './renderAsString';
-import {times, isNil, isEqual, filter, some, isNaN, map} from 'lodash';
+import {times, isNil, isEqual, filter, some, map, range} from 'lodash';
 
 export default (dimensions) => {
   const [row_count, column_count] = dimensions;
@@ -23,7 +23,7 @@ export default (dimensions) => {
 
   const cellState = ([row, column]) => state[row][column];
 
-  const revealed = ([row, column]) => !isNaN(parseInt(state[row][column]));
+  const revealed = ([row, column]) => some(range(9), (number) => state[row][column] === fieldState[number]);
 
   const notifyListeners = (listeners, cell, state, previous_state) => map(listeners, (cb) => { cb(cell, state, previous_state); });
 
@@ -43,8 +43,9 @@ export default (dimensions) => {
     } else {
       const neighbours = cellNeighbours(dimensions, cell);
       const mine_count = neighbouringMines(neighbours).length;
-      state[row][column] = mine_count.toString();
-      notifyListeners(listeners, cell, mine_count.toString(), previous_state);
+      const new_state = fieldState[mine_count];
+      state[row][column] = new_state;
+      notifyListeners(listeners, cell, new_state, previous_state);
       if (mine_count === 0) map(neighbours, (neighbour) => { reveal(neighbour, listeners); });
     }
     return revealedMine;

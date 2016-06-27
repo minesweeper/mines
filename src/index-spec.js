@@ -36,7 +36,7 @@ describe('minesweeper', () => {
       expect(game.reveal(cell)).toBe(gameState.WON);
       expect(gameStateTransitions).toEqual([[gameState.WON, gameState.NOT_STARTED]]);
       expect(game.state()).toBe(gameState.WON);
-      expect(game.cellState(cell)).toBe('1');
+      expect(game.cellState(cell)).toBe(fieldState[1]);
       expect(game.finished()).toBeTruthy();
     });
   });
@@ -60,8 +60,8 @@ describe('minesweeper', () => {
     it('should ignore mark when already revealed', () => {
       const cell = [0, 0];
       expect(game.reveal(cell)).toBe(gameState.STARTED);
-      expect(game.cellState(cell)).toBe('1');
-      expect(game.mark(cell)).toBe('1');
+      expect(game.cellState(cell)).toBe(fieldState[1]);
+      expect(game.mark(cell)).toBe(fieldState[1]);
     });
 
     describe('when a cell is marked as a mine', () => {
@@ -143,7 +143,7 @@ describe('minesweeper', () => {
       expect(game.cellState(cell)).toBe(fieldState.UNKNOWN);
       expect(game.reveal(cell)).toBe(gameState.STARTED);
       expect(game.state()).toBe(gameState.STARTED);
-      expect(game.cellState(cell)).toBe('2');
+      expect(game.cellState(cell)).toBe(fieldState[2]);
       expect(game.finished()).toBeFalsy();
     });
   });
@@ -169,14 +169,14 @@ describe('minesweeper', () => {
       expect(game.reveal([0, 0])).toBe(gameState.WON);
       expect(game.state()).toBe(gameState.WON);
       expect(cellStateTransitions).toEqual([
-        [[0, 0], '0', fieldState.UNKNOWN],
-        [[0, 1], '0', fieldState.UNKNOWN],
-        [[0, 2], '0', fieldState.UNKNOWN],
-        [[1, 1], '1', fieldState.UNKNOWN],
-        [[1, 2], '1', fieldState.UNKNOWN],
-        [[1, 0], '0', fieldState.UNKNOWN],
-        [[2, 0], '0', fieldState.UNKNOWN],
-        [[2, 1], '1', fieldState.UNKNOWN]
+        [[0, 0], fieldState[0], fieldState.UNKNOWN],
+        [[0, 1], fieldState[0], fieldState.UNKNOWN],
+        [[0, 2], fieldState[0], fieldState.UNKNOWN],
+        [[1, 1], fieldState[1], fieldState.UNKNOWN],
+        [[1, 2], fieldState[1], fieldState.UNKNOWN],
+        [[1, 0], fieldState[0], fieldState.UNKNOWN],
+        [[2, 0], fieldState[0], fieldState.UNKNOWN],
+        [[2, 1], fieldState[1], fieldState.UNKNOWN]
       ]);
     });
   });
