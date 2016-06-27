@@ -29,3 +29,4 @@ m.reveal([4, 4]);
 * 0.0.2 Another release that transpiles to dist folder (but still does nothing)
 * 0.1.0 Partially completed implementation (no events and no marking mines)
 * 0.2.0 Slightly more complete implementation (still no marking mines)
+* 0.3.0 Full implementation of game except final marking of correct/incorrect cell state for marked mines
