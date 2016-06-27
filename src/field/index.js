@@ -38,8 +38,8 @@ export default (dimensions) => {
     const previous_state = state[row][column];
     const revealedMine = isMine(cell);
     if (revealedMine) {
-      state[row][column] = fieldState.MINE;
-      notifyListeners(listeners, cell, fieldState.MINE, previous_state);
+      state[row][column] = fieldState.EXPLODED_MINE;
+      notifyListeners(listeners, cell, fieldState.EXPLODED_MINE, previous_state);
     } else {
       const neighbours = cellNeighbours(dimensions, cell);
       const mine_count = neighbouringMines(neighbours).length;

@@ -1,6 +1,7 @@
 export default {
   UNKNOWN: '⬜',
   MINE: '💣',
+  EXPLODED_MINE: '💥',
   MARKED: '🚩',
   QUESTION: '❓',
   0: '0️⃣',

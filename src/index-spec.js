@@ -122,10 +122,10 @@ describe('minesweeper', () => {
       expect(game.cellState(cell)).toBe(fieldState.UNKNOWN);
       expect(game.reveal(cell)).toBe(gameState.LOST);
       expect(game.state()).toBe(gameState.LOST);
-      expect(game.cellState(cell)).toBe(fieldState.MINE);
+      expect(game.cellState(cell)).toBe(fieldState.EXPLODED_MINE);
       expect(game.finished()).toBeTruthy();
       expect(cellStateTransitions).toEqual([
-        [cell, fieldState.MINE, fieldState.UNKNOWN]
+        [cell, fieldState.EXPLODED_MINE, fieldState.UNKNOWN]
       ]);
     });
 

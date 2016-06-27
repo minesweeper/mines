@@ -27,11 +27,11 @@ m.onGameStateChange(
   }
 );
 m.onCellStateChange(
-  function (cell, state, oldState) { console.log('cell state', cell, oldState, state); }
+  function (cell, state, oldState) { console.log('cell', cell, 'changed from', oldState, 'to', state); }
 );
-m.state();
-m.renderAsString();
 m.reveal([4, 4]);
+m.reveal([2, 10]);
+m.mark([5, 12]);
 ```
 
 ## Release History
