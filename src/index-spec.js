@@ -57,6 +57,13 @@ describe('minesweeper', () => {
       });
     });
 
+    it('should ignore mark when already revealed', () => {
+      const cell = [0, 0];
+      expect(game.reveal(cell)).toBe(gameState.STARTED);
+      expect(game.cellState(cell)).toBe('1');
+      expect(game.mark(cell)).toBe('1');
+    });
+
     describe('when a cell is marked as a mine', () => {
       const cell = [1, 1];
 
