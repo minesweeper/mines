@@ -41,3 +41,4 @@ m.mark([5, 12]);
 * 0.1.0 Partially completed implementation (no events and no marking mines)
 * 0.2.0 Slightly more complete implementation (still no marking mines)
 * 0.3.0 Full implementation of game except final marking of correct/incorrect cell state for marked mines
+* 0.4.0 Full implementation of game with marking mines and replace cell state with emoji
