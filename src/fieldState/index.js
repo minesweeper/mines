@@ -2,6 +2,7 @@ export default {
   UNKNOWN: '⬜',
   MINE: '💣',
   EXPLODED_MINE: '💥',
+  INCORRECTLY_MARKED_MINE: '❌',
   MARKED: '🚩',
   QUESTION: '❓',
   0: '0️⃣',

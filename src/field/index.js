@@ -32,20 +32,45 @@ export default (dimensions) => {
     return current_state === fieldState.MARKED || current_state === fieldState.QUESTION;
   };
 
+  const setCellState = ([row, column], new_state, listeners) => {
+    const previous_state = state[row][column];
+    state[row][column] = new_state;
+    notifyListeners(listeners, [row, column], new_state, previous_state);
+  };
+
+  const flagIncorrectlyMarkedMines = (listeners) => {
+    times(row_count, (row) => {
+      times(column_count, (column) => {
+        const cell = [row, column];
+        if (cellState(cell) === fieldState.MARKED && !isMine(cell)) {
+          setCellState(cell, fieldState.INCORRECTLY_MARKED_MINE, listeners);
+        }
+      });
+    });
+  };
+
+  const revealUnmarkedMines = (listeners) => {
+    map(mines, (mine) => {
+      if (cellState(mine) === fieldState.UNKNOWN) setCellState(mine, fieldState.MINE, listeners);
+    });
+  };
+
+  const finaliseLostGame = (cell, listeners) => {
+    setCellState(cell, fieldState.EXPLODED_MINE, listeners);
+    revealUnmarkedMines(listeners);
+    flagIncorrectlyMarkedMines(listeners);
+  };
+
   const reveal = (cell, listeners) => {
     if (revealed(cell) || marked(cell)) return false;
-    const [row, column] = cell;
-    const previous_state = state[row][column];
     const revealedMine = isMine(cell);
     if (revealedMine) {
-      state[row][column] = fieldState.EXPLODED_MINE;
-      notifyListeners(listeners, cell, fieldState.EXPLODED_MINE, previous_state);
+      finaliseLostGame(cell, listeners);
     } else {
       const neighbours = cellNeighbours(dimensions, cell);
       const mine_count = neighbouringMines(neighbours).length;
       const new_state = fieldState[mine_count];
-      state[row][column] = new_state;
-      notifyListeners(listeners, cell, new_state, previous_state);
+      setCellState(cell, new_state, listeners);
       if (mine_count === 0) map(neighbours, (neighbour) => { reveal(neighbour, listeners); });
     }
     return revealedMine;

@@ -44,9 +44,9 @@ describe('minesweeper', () => {
   describe('in test mode (with fixed mines)', () => {
     let cellStateTransitions = null;
     const options = toOptions(`
-      . . . .
-      . * * .
-      . . . .
+      . . . . .
+      . * * * .
+      . . . . .
     `);
 
     beforeEach(() => {
@@ -55,6 +55,12 @@ describe('minesweeper', () => {
       game.onCellStateChange((cell, state, previous_state) => {
         cellStateTransitions.push([cell, state, previous_state]);
       });
+    });
+
+    it('should have initial state', () => {
+      expect(game.finished()).toBeFalsy();
+      expect(game.state()).toBe(gameState.NOT_STARTED);
+      expect(game.test_mode).toBeTruthy();
     });
 
     it('should ignore mark when already revealed', () => {
@@ -111,31 +117,51 @@ describe('minesweeper', () => {
       });
     });
 
-    it('should have initial state', () => {
-      expect(game.finished()).toBeFalsy();
-      expect(game.state()).toBe(gameState.NOT_STARTED);
-      expect(game.test_mode).toBeTruthy();
-    });
-
-    it('should reveal a mine and immediately lose the game', () => {
-      const cell = [1, 1];
-      expect(game.cellState(cell)).toBe(fieldState.UNKNOWN);
-      expect(game.reveal(cell)).toBe(gameState.LOST);
-      expect(game.state()).toBe(gameState.LOST);
-      expect(game.cellState(cell)).toBe(fieldState.EXPLODED_MINE);
-      expect(game.finished()).toBeTruthy();
-      expect(cellStateTransitions).toEqual([
-        [cell, fieldState.EXPLODED_MINE, fieldState.UNKNOWN]
-      ]);
-    });
-
-    it('should make no state changes when game is finished', () => {
-      const mine_cell = [1, 1];
+    describe('when a mine is revealed', () => {
       const safe_cell = [0, 0];
-      expect(game.reveal(mine_cell)).toBe(gameState.LOST);
-      expect(game.reveal(safe_cell)).toBe(gameState.LOST);
-      expect(game.cellState(safe_cell)).toBe(fieldState.UNKNOWN);
-      expect(game.finished()).toBeTruthy();
+      const another_safe_cell = [2, 2];
+      const mine_cell = [1, 1];
+      const another_mine_cell = [1, 2];
+      const yet_another_mine_cell = [1, 3];
+
+      beforeEach(() => {
+        expect(game.mark(safe_cell)).toBe(fieldState.MARKED);
+        expect(game.mark(another_mine_cell)).toBe(fieldState.MARKED);
+        expect(game.reveal(mine_cell)).toBe(gameState.LOST);
+        expect(game.state()).toBe(gameState.LOST);
+      });
+
+      it('last selected mine should be exploded', () => {
+        expect(game.cellState(mine_cell)).toBe(fieldState.EXPLODED_MINE);
+      });
+
+      it('game should finished', () => {
+        expect(game.finished()).toBeTruthy();
+      });
+
+      it('other mines should be revealed', () => {
+        expect(game.cellState(yet_another_mine_cell)).toBe(fieldState.MINE);
+      });
+
+      it('incorrectly marked mines should be revealed', () => {
+        expect(game.cellState(safe_cell)).toBe(fieldState.INCORRECTLY_MARKED_MINE);
+      });
+
+      it('cell transitions should include revealing other mines', () => {
+        expect(cellStateTransitions).toEqual([
+          [safe_cell, fieldState.MARKED, fieldState.UNKNOWN],
+          [another_mine_cell, fieldState.MARKED, fieldState.UNKNOWN],
+          [mine_cell, fieldState.EXPLODED_MINE, fieldState.UNKNOWN],
+          [yet_another_mine_cell, fieldState.MINE, fieldState.UNKNOWN],
+          [safe_cell, fieldState.INCORRECTLY_MARKED_MINE, fieldState.MARKED]
+        ]);
+      });
+
+      it('should make no further state changes when game is lost', () => {
+        expect(game.reveal(another_safe_cell)).toBe(gameState.LOST);
+        expect(game.cellState(another_safe_cell)).toBe(fieldState.UNKNOWN);
+        expect(game.finished()).toBeTruthy();
+      });
     });
 
     it('should reveal two adjacent mines', () => {
