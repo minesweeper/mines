@@ -59,7 +59,7 @@ export default (dimensions) => {
     if (previous_state === fieldState.MARKED) new_state = fieldState.QUESTION;
     if (previous_state === fieldState.QUESTION) new_state = fieldState.UNKNOWN;
     state[row][column] = new_state;
-    notifyListeners(listeners, cell, fieldState.MINE, new_state);
+    notifyListeners(listeners, cell, new_state, previous_state);
     return new_state;
   };
 

@@ -68,6 +68,9 @@ describe('minesweeper', () => {
       it('should ignore reveal', () => {
         expect(game.reveal(cell)).toBe(gameState.STARTED);
         expect(game.cellState(cell)).toBe(fieldState.MARKED);
+        expect(cellStateTransitions).toEqual([
+          [cell, fieldState.MARKED, fieldState.UNKNOWN]
+        ]);
       });
     });
 
@@ -84,11 +87,20 @@ describe('minesweeper', () => {
       it('should allow cycle back to unknown by marking again', () => {
         expect(game.mark(cell)).toBe(fieldState.UNKNOWN);
         expect(game.cellState(cell)).toBe(fieldState.UNKNOWN);
+        expect(cellStateTransitions).toEqual([
+          [cell, fieldState.MARKED, fieldState.UNKNOWN],
+          [cell, fieldState.QUESTION, fieldState.MARKED],
+          [cell, fieldState.UNKNOWN, fieldState.QUESTION]
+        ]);
       });
 
       it('should ignore reveal', () => {
         expect(game.reveal(cell)).toBe(gameState.STARTED);
         expect(game.cellState(cell)).toBe(fieldState.QUESTION);
+        expect(cellStateTransitions).toEqual([
+          [cell, fieldState.MARKED, fieldState.UNKNOWN],
+          [cell, fieldState.QUESTION, fieldState.MARKED]
+        ]);
       });
     });
 
