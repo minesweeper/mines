@@ -57,6 +57,41 @@ describe('minesweeper', () => {
       });
     });
 
+    describe('when a cell is marked as a mine', () => {
+      const cell = [1, 1];
+
+      beforeEach(() => {
+        expect(game.mark(cell)).toBe(fieldState.MARKED);
+        expect(game.cellState(cell)).toBe(fieldState.MARKED);
+      });
+
+      it('should ignore reveal', () => {
+        expect(game.reveal(cell)).toBe(gameState.STARTED);
+        expect(game.cellState(cell)).toBe(fieldState.MARKED);
+      });
+    });
+
+    describe('when a cell is marked as a question', () => {
+      const cell = [1, 1];
+
+      beforeEach(() => {
+        expect(game.mark(cell)).toBe(fieldState.MARKED);
+        expect(game.cellState(cell)).toBe(fieldState.MARKED);
+        expect(game.mark(cell)).toBe(fieldState.QUESTION);
+        expect(game.cellState(cell)).toBe(fieldState.QUESTION);
+      });
+
+      it('should allow cycle back to unknown by marking again', () => {
+        expect(game.mark(cell)).toBe(fieldState.UNKNOWN);
+        expect(game.cellState(cell)).toBe(fieldState.UNKNOWN);
+      });
+
+      it('should ignore reveal', () => {
+        expect(game.reveal(cell)).toBe(gameState.STARTED);
+        expect(game.cellState(cell)).toBe(fieldState.QUESTION);
+      });
+    });
+
     it('should have initial state', () => {
       expect(game.finished()).toBeFalsy();
       expect(game.state()).toBe(gameState.NOT_STARTED);

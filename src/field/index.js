@@ -27,8 +27,13 @@ export default (dimensions) => {
 
   const notifyListeners = (listeners, cell, state, previous_state) => map(listeners, (cb) => { cb(cell, state, previous_state); });
 
+  const marked = ([row, column]) => {
+    const current_state = state[row][column];
+    return current_state === fieldState.MARKED || current_state === fieldState.QUESTION;
+  };
+
   const reveal = (cell, listeners) => {
-    if (revealed(cell)) return false;
+    if (revealed(cell) || marked(cell)) return false;
     const [row, column] = cell;
     const previous_state = state[row][column];
     const revealedMine = isMine(cell);
@@ -43,6 +48,19 @@ export default (dimensions) => {
       if (mine_count === 0) map(neighbours, (neighbour) => { reveal(neighbour, listeners); });
     }
     return revealedMine;
+  };
+
+  const mark = (cell, listeners) => {
+    const [row, column] = cell;
+    if (revealed(cell)) return state[row][column];
+    const previous_state = state[row][column];
+    let new_state = null;
+    if (previous_state === fieldState.UNKNOWN) new_state = fieldState.MARKED;
+    if (previous_state === fieldState.MARKED) new_state = fieldState.QUESTION;
+    if (previous_state === fieldState.QUESTION) new_state = fieldState.UNKNOWN;
+    state[row][column] = new_state;
+    notifyListeners(listeners, cell, fieldState.MINE, new_state);
+    return new_state;
   };
 
   const revealedCells = () => {
@@ -62,6 +80,7 @@ export default (dimensions) => {
     placeMines: (m) => { mines = m; },
     cellState: cellState,
     reveal: reveal,
+    mark: mark,
     revealed: revealed,
     renderAsString: () => renderAsString(state),
     allCellsWithoutMinesRevealed: allCellsWithoutMinesRevealed

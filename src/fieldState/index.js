@@ -1,4 +1,6 @@
 export default {
   UNKNOWN: '.',
-  MINE: '*'
+  MINE: '*',
+  MARKED: 'F',
+  QUESTION: '?'
 };

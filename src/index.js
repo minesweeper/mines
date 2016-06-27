@@ -36,6 +36,8 @@ const minesweeper = (options) => {
     return state;
   };
 
+  const mark = (cell) => visibleField.mark(cell, cellStateChangeListeners);
+
   const onGameStateChange = (listener) => { gameStateChangeListeners.push(listener); };
 
   const onCellStateChange = (listener) => { cellStateChangeListeners.push(listener); };
@@ -44,6 +46,7 @@ const minesweeper = (options) => {
     finished: finished,
     state: () => state,
     cellState: visibleField.cellState,
+    mark: mark,
     reveal: reveal,
     renderAsString: visibleField.renderAsString,
     onGameStateChange: onGameStateChange,
