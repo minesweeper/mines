@@ -67,14 +67,15 @@ describe('minesweeper', () => {
       const cell = [0, 0];
       expect(game.reveal(cell)).toBe(gameState.STARTED);
       expect(game.cellState(cell)).toBe(fieldState[1]);
-      expect(game.mark(cell)).toBe(fieldState[1]);
+      expect(game.mark(cell)).toBe(gameState.STARTED);
+      expect(game.cellState(cell)).toBe(fieldState[1]);
     });
 
     describe('when a cell is marked as a mine', () => {
       const cell = [1, 1];
 
       beforeEach(() => {
-        expect(game.mark(cell)).toBe(fieldState.MARKED);
+        expect(game.mark(cell)).toBe(gameState.NOT_STARTED);
         expect(game.cellState(cell)).toBe(fieldState.MARKED);
       });
 
@@ -91,14 +92,14 @@ describe('minesweeper', () => {
       const cell = [1, 1];
 
       beforeEach(() => {
-        expect(game.mark(cell)).toBe(fieldState.MARKED);
+        expect(game.mark(cell)).toBe(gameState.NOT_STARTED);
         expect(game.cellState(cell)).toBe(fieldState.MARKED);
-        expect(game.mark(cell)).toBe(fieldState.QUESTION);
+        expect(game.mark(cell)).toBe(gameState.NOT_STARTED);
         expect(game.cellState(cell)).toBe(fieldState.QUESTION);
       });
 
       it('should allow cycle back to unknown by marking again', () => {
-        expect(game.mark(cell)).toBe(fieldState.UNKNOWN);
+        expect(game.mark(cell)).toBe(gameState.NOT_STARTED);
         expect(game.cellState(cell)).toBe(fieldState.UNKNOWN);
         expect(cellStateTransitions).toEqual([
           [cell, fieldState.MARKED, fieldState.UNKNOWN],
@@ -125,8 +126,8 @@ describe('minesweeper', () => {
       const yet_another_mine_cell = [1, 3];
 
       beforeEach(() => {
-        expect(game.mark(safe_cell)).toBe(fieldState.MARKED);
-        expect(game.mark(another_mine_cell)).toBe(fieldState.MARKED);
+        expect(game.mark(safe_cell)).toBe(gameState.NOT_STARTED);
+        expect(game.mark(another_mine_cell)).toBe(gameState.NOT_STARTED);
         expect(game.reveal(mine_cell)).toBe(gameState.LOST);
         expect(game.state()).toBe(gameState.LOST);
       });
