@@ -11,14 +11,7 @@ npm install mines --save
 ## Usage
 
 ```javascript
-var mines = require('./dist');
-```
-
-```javascript
 var mines = require('mines');
-```
-
-```javascript
 var m = mines();
 m.onGameStateChange(
   function (state, oldState) {
@@ -32,6 +25,18 @@ m.onCellStateChange(
 m.reveal([4, 4]);
 m.reveal([2, 10]);
 m.mark([5, 12]);
+```
+
+## Development
+
+```
+npm install
+npm test
+npm run dist
+```
+
+```javascript
+var mines = require('./dist');
 ```
 
 ## Release History
