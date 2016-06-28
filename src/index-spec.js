@@ -7,10 +7,18 @@ describe('minesweeper', () => {
   let game = null;
 
   describe('with defaults', () => {
-    it('should have initial state for default game', () => {
+    beforeEach(() => {
       game = minesweeper();
+    });
+
+    it('should have initial state for default game', () => {
       expect(game.finished()).toBeFalsy();
       expect(game.state()).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should default to the expert size for a new game', () => {
+      assert.deepEqual(game.dimensions, [16, 30]);
+      expect(game.mine_count).toBe(99);
     });
   });
 
