@@ -36,9 +36,22 @@ const minesweeper = (options) => {
     return state;
   };
 
+  const chord = (cell) => {
+    const previous_state = state;
+    if (finished()) return state;
+    if (visibleField.chord(cell, cellStateChangeListeners)) {
+      state = gameState.LOST;
+    } else {
+      state = visibleField.allCellsWithoutMinesRevealed() ? gameState.WON : gameState.STARTED;
+    }
+    notifyGameStateChangeListeners(state, previous_state);
+    return state;
+  };
+
   const mark = (cell) => {
+    const previous_state = state;
     visibleField.mark(cell, cellStateChangeListeners);
-    notifyGameStateChangeListeners(state, state);
+    notifyGameStateChangeListeners(state, previous_state);
     return state;
   };
 
@@ -51,6 +64,7 @@ const minesweeper = (options) => {
     state: () => state,
     cellState: visibleField.cellState,
     mark: mark,
+    chord: chord,
     reveal: reveal,
     renderAsString: visibleField.renderAsString,
     onGameStateChange: onGameStateChange,

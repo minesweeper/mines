@@ -215,4 +215,59 @@ describe('minesweeper', () => {
       ]);
     });
   });
+
+  describe('chording in test mode (with fixed mines)', () => {
+    let cellStateTransitions = null;
+
+    const options = toOptions(`
+      * . .
+      . . .
+      . . .
+    `);
+
+    beforeEach(() => {
+      game = minesweeper(options);
+      cellStateTransitions = [];
+      game.onCellStateChange((cell, state, previous_state) => {
+        cellStateTransitions.push([cell, state, previous_state]);
+      });
+    });
+
+    it('should win game by correctly revealing unknown cells around a number cell when number of flags are the same as the cell number', () => {
+      expect(game.reveal([1, 1])).toBe(gameState.STARTED);
+      expect(game.state()).toBe(gameState.STARTED);
+      expect(game.mark([0, 0])).toBe(gameState.STARTED);
+      expect(game.chord([1, 1])).toBe(gameState.WON);
+      expect(cellStateTransitions).toEqual([
+         [[1, 1], fieldState[1], fieldState.UNKNOWN],
+         [[0, 0], fieldState.MARKED, fieldState.UNKNOWN],
+         [[0, 1], fieldState[1], fieldState.UNKNOWN],
+         [[0, 2], fieldState[0], fieldState.UNKNOWN],
+         [[1, 2], fieldState[0], fieldState.UNKNOWN],
+         [[2, 1], fieldState[0], fieldState.UNKNOWN],
+         [[1, 0], fieldState[1], fieldState.UNKNOWN],
+         [[2, 0], fieldState[0], fieldState.UNKNOWN],
+         [[2, 2], fieldState[0], fieldState.UNKNOWN]
+      ]);
+    });
+
+    it('should lose game by incorrectly revealing unknown cells around a number cell when number of flags are the same as the cell number', () => {
+      expect(game.reveal([1, 1])).toBe(gameState.STARTED);
+      expect(game.state()).toBe(gameState.STARTED);
+      expect(game.mark([1, 0])).toBe(gameState.STARTED);
+      expect(game.chord([1, 1])).toBe(gameState.LOST);
+      expect(cellStateTransitions).toEqual([
+         [[1, 1], fieldState[1], fieldState.UNKNOWN],
+         [[1, 0], fieldState.MARKED, fieldState.UNKNOWN],
+         [[0, 0], fieldState.EXPLODED_MINE, fieldState.UNKNOWN],
+         [[1, 0], fieldState.INCORRECTLY_MARKED_MINE, fieldState.MARKED],
+         [[0, 1], fieldState[1], fieldState.UNKNOWN],
+         [[0, 2], fieldState[0], fieldState.UNKNOWN],
+         [[1, 2], fieldState[0], fieldState.UNKNOWN],
+         [[2, 1], fieldState[0], fieldState.UNKNOWN],
+         [[2, 0], fieldState[0], fieldState.UNKNOWN],
+         [[2, 2], fieldState[0], fieldState.UNKNOWN]
+      ]);
+    });
+  });
 });
