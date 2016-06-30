@@ -22,6 +22,10 @@ export default (dimensions) => {
     return current_state === fieldState.MARKED || current_state === fieldState.QUESTION;
   };
 
+  const outOfBounds = ([row, column]) => {
+    return (row < 0 || row > (row_count - 1) || column < 0 || column > (column_count - 1));
+  };
+
   const isMine = (cell) => some(mines, (mine) => isEqual(cell, mine));
 
   const neighbouringMines = (neighbours) => filter(neighbours, (neighbour) => isMine(neighbour));
@@ -64,6 +68,7 @@ export default (dimensions) => {
   };
 
   const reveal = (cell, listeners) => {
+    if (outOfBounds(cell)) return false;
     if (cellState(cell) !== fieldState.UNKNOWN) return false;
     if (isMine(cell)) {
       finaliseLostGame(cell, listeners);
@@ -78,6 +83,7 @@ export default (dimensions) => {
   };
 
   const chord = (cell, listeners) => {
+    if (outOfBounds(cell)) return false;
     if (!revealed(cell) && !(marked(cell))) return reveal(cell, listeners);
     if (marked(cell)) return false;
 

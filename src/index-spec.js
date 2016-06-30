@@ -270,4 +270,121 @@ describe('minesweeper', () => {
       ]);
     });
   });
+
+  describe('out of bounds checking on reveal', () => {
+    let cellStateTransitions = null;
+
+    const options = toOptions(`
+      * . .
+      . . .
+      . . .
+    `);
+
+    beforeEach(() => {
+      game = minesweeper(options);
+      cellStateTransitions = [];
+      game.onCellStateChange((cell, state, previous_state) => {
+        cellStateTransitions.push([cell, state, previous_state]);
+      });
+    });
+
+    it('should ignore reveals under row bounds', () => {
+      expect(game.reveal([-1, 1])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore reveals over row bounds', () => {
+      expect(game.reveal([3, 0])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore reveals under column bounds', () => {
+      expect(game.reveal([0, -10])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore reveals over column bounds', () => {
+      expect(game.reveal([0, 4])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore reveals under and over row/column bounds', () => {
+      expect(game.reveal([-1, 3])).toBe(gameState.NOT_STARTED);
+    });
+  });
+
+  describe('out of bounds checking on chord', () => {
+    let cellStateTransitions = null;
+
+    const options = toOptions(`
+      * . .
+      . . .
+      . . .
+    `);
+
+    beforeEach(() => {
+      game = minesweeper(options);
+      cellStateTransitions = [];
+      game.onCellStateChange((cell, state, previous_state) => {
+        cellStateTransitions.push([cell, state, previous_state]);
+      });
+    });
+
+    it('should ignore chords under row bounds', () => {
+      expect(game.chord([-1, 1])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore chords over row bounds', () => {
+      expect(game.chord([3, 0])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore chords under column bounds', () => {
+      expect(game.chord([0, -10])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore chords over column bounds', () => {
+      expect(game.chord([0, 4])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore chords under and over row/column bounds', () => {
+      expect(game.chord([-1, 3])).toBe(gameState.NOT_STARTED);
+    });
+
+  });
+
+  describe('out of bounds checking on mark', () => {
+    let cellStateTransitions = null;
+
+    const options = toOptions(`
+      * . .
+      . . .
+      . . .
+    `);
+
+    beforeEach(() => {
+      game = minesweeper(options);
+      cellStateTransitions = [];
+      game.onCellStateChange((cell, state, previous_state) => {
+        cellStateTransitions.push([cell, state, previous_state]);
+      });
+    });
+
+    it('should ignore marks under row bounds', () => {
+      expect(game.mark([-1, 1])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore marks over row bounds', () => {
+      expect(game.mark([3, 0])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore marks under column bounds', () => {
+      expect(game.mark([0, -10])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore marks over column bounds', () => {
+      expect(game.mark([0, 4])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore marks under and over row/column bounds', () => {
+      expect(game.mark([-1, 3])).toBe(gameState.NOT_STARTED);
+    });
+
+  });
+
 });
