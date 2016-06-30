@@ -1,7 +1,7 @@
 import fieldState from '../fieldState';
 import cellNeighbours from './cellNeighbours';
 import renderAsString from './renderAsString';
-import {times, isNil, isEqual, filter, some, map, range} from 'lodash';
+import {times, isNil, isEqual, filter, some, map, range, each} from 'lodash';
 
 export default (dimensions) => {
   const [row_count, column_count] = dimensions;
@@ -17,20 +17,26 @@ export default (dimensions) => {
     });
   });
 
+  const marked = ([row, column]) => {
+    const current_state = state[row][column];
+    return current_state === fieldState.MARKED || current_state === fieldState.QUESTION;
+  };
+
+  const outOfBounds = ([row, column]) => {
+    return (row < 0 || row > (row_count - 1) || column < 0 || column > (column_count - 1));
+  };
+
   const isMine = (cell) => some(mines, (mine) => isEqual(cell, mine));
 
   const neighbouringMines = (neighbours) => filter(neighbours, (neighbour) => isMine(neighbour));
+
+  const neighbouringMarkedCells = (neighbours) => filter(neighbours, (neighbour) => marked(neighbour));
 
   const cellState = ([row, column]) => state[row][column];
 
   const revealed = ([row, column]) => some(range(9), (number) => state[row][column] === fieldState[number]);
 
   const notifyListeners = (listeners, cell, state, previous_state) => map(listeners, (cb) => { cb(cell, state, previous_state); });
-
-  const marked = ([row, column]) => {
-    const current_state = state[row][column];
-    return current_state === fieldState.MARKED || current_state === fieldState.QUESTION;
-  };
 
   const setCellState = ([row, column], new_state, listeners) => {
     const previous_state = state[row][column];
@@ -62,16 +68,32 @@ export default (dimensions) => {
   };
 
   const reveal = (cell, listeners) => {
-    if (revealed(cell) || marked(cell)) return false;
-    const revealedMine = isMine(cell);
-    if (revealedMine) {
+    if (outOfBounds(cell)) return false;
+    if (cellState(cell) !== fieldState.UNKNOWN) return false;
+    if (isMine(cell)) {
       finaliseLostGame(cell, listeners);
-    } else {
-      const neighbours = cellNeighbours(dimensions, cell);
-      const mine_count = neighbouringMines(neighbours).length;
-      const new_state = fieldState[mine_count];
-      setCellState(cell, new_state, listeners);
-      if (mine_count === 0) map(neighbours, (neighbour) => { reveal(neighbour, listeners); });
+      return true;
+    }
+    const neighbours = cellNeighbours(dimensions, cell);
+    const mine_count = neighbouringMines(neighbours).length;
+    const new_state = fieldState[mine_count];
+    setCellState(cell, new_state, listeners);
+    if (mine_count === 0) map(neighbours, (neighbour) => { reveal(neighbour, listeners); });
+    return false;
+  };
+
+  const chord = (cell, listeners) => {
+    if (outOfBounds(cell)) return false;
+    if (!revealed(cell) && !(marked(cell))) return reveal(cell, listeners);
+    if (marked(cell)) return false;
+
+    const neighbours = cellNeighbours(dimensions, cell);
+    let revealedMine = false;
+
+    if (revealed(cell) && neighbouringMarkedCells(neighbours).length === neighbouringMines(neighbours).length) {
+      each(neighbours, (neighbour) => {
+        if (reveal(neighbour, listeners) === true) { revealedMine = true; }
+      });
     }
     return revealedMine;
   };
@@ -84,8 +106,7 @@ export default (dimensions) => {
     if (previous_state === fieldState.UNKNOWN) new_state = fieldState.MARKED;
     if (previous_state === fieldState.MARKED) new_state = fieldState.QUESTION;
     if (previous_state === fieldState.QUESTION) new_state = fieldState.UNKNOWN;
-    state[row][column] = new_state;
-    notifyListeners(listeners, cell, new_state, previous_state);
+    setCellState(cell, new_state, listeners);
     return new_state;
   };
 
@@ -107,6 +128,7 @@ export default (dimensions) => {
     cellState: cellState,
     reveal: reveal,
     mark: mark,
+    chord: chord,
     revealed: revealed,
     renderAsString: () => renderAsString(state),
     allCellsWithoutMinesRevealed: allCellsWithoutMinesRevealed

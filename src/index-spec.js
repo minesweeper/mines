@@ -215,4 +215,176 @@ describe('minesweeper', () => {
       ]);
     });
   });
+
+  describe('chording in test mode (with fixed mines)', () => {
+    let cellStateTransitions = null;
+
+    const options = toOptions(`
+      * . .
+      . . .
+      . . .
+    `);
+
+    beforeEach(() => {
+      game = minesweeper(options);
+      cellStateTransitions = [];
+      game.onCellStateChange((cell, state, previous_state) => {
+        cellStateTransitions.push([cell, state, previous_state]);
+      });
+    });
+
+    it('should win game by correctly revealing unknown cells around a number cell when number of flags are the same as the cell number', () => {
+      expect(game.reveal([1, 1])).toBe(gameState.STARTED);
+      expect(game.state()).toBe(gameState.STARTED);
+      expect(game.mark([0, 0])).toBe(gameState.STARTED);
+      expect(game.chord([1, 1])).toBe(gameState.WON);
+      expect(cellStateTransitions).toEqual([
+         [[1, 1], fieldState[1], fieldState.UNKNOWN],
+         [[0, 0], fieldState.MARKED, fieldState.UNKNOWN],
+         [[0, 1], fieldState[1], fieldState.UNKNOWN],
+         [[0, 2], fieldState[0], fieldState.UNKNOWN],
+         [[1, 2], fieldState[0], fieldState.UNKNOWN],
+         [[2, 1], fieldState[0], fieldState.UNKNOWN],
+         [[1, 0], fieldState[1], fieldState.UNKNOWN],
+         [[2, 0], fieldState[0], fieldState.UNKNOWN],
+         [[2, 2], fieldState[0], fieldState.UNKNOWN]
+      ]);
+    });
+
+    it('should lose game by incorrectly revealing unknown cells around a number cell when number of flags are the same as the cell number', () => {
+      expect(game.reveal([1, 1])).toBe(gameState.STARTED);
+      expect(game.state()).toBe(gameState.STARTED);
+      expect(game.mark([1, 0])).toBe(gameState.STARTED);
+      expect(game.chord([1, 1])).toBe(gameState.LOST);
+      expect(cellStateTransitions).toEqual([
+         [[1, 1], fieldState[1], fieldState.UNKNOWN],
+         [[1, 0], fieldState.MARKED, fieldState.UNKNOWN],
+         [[0, 0], fieldState.EXPLODED_MINE, fieldState.UNKNOWN],
+         [[1, 0], fieldState.INCORRECTLY_MARKED_MINE, fieldState.MARKED],
+         [[0, 1], fieldState[1], fieldState.UNKNOWN],
+         [[0, 2], fieldState[0], fieldState.UNKNOWN],
+         [[1, 2], fieldState[0], fieldState.UNKNOWN],
+         [[2, 1], fieldState[0], fieldState.UNKNOWN],
+         [[2, 0], fieldState[0], fieldState.UNKNOWN],
+         [[2, 2], fieldState[0], fieldState.UNKNOWN]
+      ]);
+    });
+  });
+
+  describe('out of bounds checking on reveal', () => {
+    let cellStateTransitions = null;
+
+    const options = toOptions(`
+      * . .
+      . . .
+      . . .
+    `);
+
+    beforeEach(() => {
+      game = minesweeper(options);
+      cellStateTransitions = [];
+      game.onCellStateChange((cell, state, previous_state) => {
+        cellStateTransitions.push([cell, state, previous_state]);
+      });
+    });
+
+    it('should ignore reveals under row bounds', () => {
+      expect(game.reveal([-1, 1])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore reveals over row bounds', () => {
+      expect(game.reveal([3, 0])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore reveals under column bounds', () => {
+      expect(game.reveal([0, -10])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore reveals over column bounds', () => {
+      expect(game.reveal([0, 4])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore reveals under and over row/column bounds', () => {
+      expect(game.reveal([-1, 3])).toBe(gameState.NOT_STARTED);
+    });
+  });
+
+  describe('out of bounds checking on chord', () => {
+    let cellStateTransitions = null;
+
+    const options = toOptions(`
+      * . .
+      . . .
+      . . .
+    `);
+
+    beforeEach(() => {
+      game = minesweeper(options);
+      cellStateTransitions = [];
+      game.onCellStateChange((cell, state, previous_state) => {
+        cellStateTransitions.push([cell, state, previous_state]);
+      });
+    });
+
+    it('should ignore chords under row bounds', () => {
+      expect(game.chord([-1, 1])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore chords over row bounds', () => {
+      expect(game.chord([3, 0])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore chords under column bounds', () => {
+      expect(game.chord([0, -10])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore chords over column bounds', () => {
+      expect(game.chord([0, 4])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore chords under and over row/column bounds', () => {
+      expect(game.chord([-1, 3])).toBe(gameState.NOT_STARTED);
+    });
+
+  });
+
+  describe('out of bounds checking on mark', () => {
+    let cellStateTransitions = null;
+
+    const options = toOptions(`
+      * . .
+      . . .
+      . . .
+    `);
+
+    beforeEach(() => {
+      game = minesweeper(options);
+      cellStateTransitions = [];
+      game.onCellStateChange((cell, state, previous_state) => {
+        cellStateTransitions.push([cell, state, previous_state]);
+      });
+    });
+
+    it('should ignore marks under row bounds', () => {
+      expect(game.mark([-1, 1])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore marks over row bounds', () => {
+      expect(game.mark([3, 0])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore marks under column bounds', () => {
+      expect(game.mark([0, -10])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore marks over column bounds', () => {
+      expect(game.mark([0, 4])).toBe(gameState.NOT_STARTED);
+    });
+
+    it('should ignore marks under and over row/column bounds', () => {
+      expect(game.mark([-1, 3])).toBe(gameState.NOT_STARTED);
+    });
+
+  });
+
 });

@@ -13,6 +13,10 @@ const minesweeper = (options) => {
 
   const finished = () => (state === gameState.WON || state === gameState.LOST);
 
+  const outOfBounds = ([row, column]) => {
+    return (row < 0 || row > (config.dimensions[0] - 1) || column < 0 || column > (config.dimensions[1] - 1));
+  };
+
   const ensureMinesHaveBeenPlaced = ([row, column]) => {
     if (!visibleField.minesPlaced()) {
       visibleField.placeMines(config.mines || randomlyPlaceMines(config, row, column));
@@ -24,8 +28,8 @@ const minesweeper = (options) => {
   });
 
   const reveal = (cell) => {
+    if (finished() || outOfBounds(cell)) return state;
     const previous_state = state;
-    if (finished()) return state;
     ensureMinesHaveBeenPlaced(cell);
     if (visibleField.reveal(cell, cellStateChangeListeners)) {
       state = gameState.LOST;
@@ -36,9 +40,23 @@ const minesweeper = (options) => {
     return state;
   };
 
+  const chord = (cell) => {
+    if (finished() || outOfBounds(cell)) return state;
+    const previous_state = state;
+    if (visibleField.chord(cell, cellStateChangeListeners)) {
+      state = gameState.LOST;
+    } else {
+      state = visibleField.allCellsWithoutMinesRevealed() ? gameState.WON : gameState.STARTED;
+    }
+    notifyGameStateChangeListeners(state, previous_state);
+    return state;
+  };
+
   const mark = (cell) => {
+    if (finished() || outOfBounds(cell)) return state;
+    const previous_state = state;
     visibleField.mark(cell, cellStateChangeListeners);
-    notifyGameStateChangeListeners(state, state);
+    notifyGameStateChangeListeners(state, previous_state);
     return state;
   };
 
@@ -51,6 +69,7 @@ const minesweeper = (options) => {
     state: () => state,
     cellState: visibleField.cellState,
     mark: mark,
+    chord: chord,
     reveal: reveal,
     renderAsString: visibleField.renderAsString,
     onGameStateChange: onGameStateChange,
