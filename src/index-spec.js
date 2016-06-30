@@ -305,7 +305,6 @@ describe('minesweeper', () => {
     });
 
     it('should ignore reveals under and over row/column bounds', () => {
-      console.log('alister');
       expect(game.reveal([-1, 3])).toBe(gameState.NOT_STARTED);
     });
   });
