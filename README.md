@@ -47,3 +47,4 @@ var mines = require('./dist');
 * 0.2.0 Slightly more complete implementation (still no marking mines)
 * 0.3.0 Full implementation of game except final marking of correct/incorrect cell state for marked mines
 * 0.4.0 Full implementation of game with marking mines and replace cell state with emoji
+* 0.5.0 Added chording to the game to support chording via double clicking the UI
