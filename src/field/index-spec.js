@@ -120,6 +120,15 @@ describe('chording', () => {
     assert.equal(testField.cellState(mineCell), fieldState.EXPLODED_MINE);
   });
 
+  it('acts as a reveal if the mine is not revealed and not marked at the beginning of a game', () => {
+    const mineCell = [0, 0];
+    const nonMineCell = [1, 1];
+    assert.equal(testField.chord(nonMineCell), false);
+    assert.equal(testField.cellState(nonMineCell), fieldState[1]);
+    assert.equal(testField.chord(mineCell), true);
+    assert.equal(testField.cellState(mineCell), fieldState.EXPLODED_MINE);
+  });
+
   it('when marked correctly, reveals all unknown cells when the cell is a number and marked neighbours match that number', () => {
     assert.equal(testField.mark([0, 0]), fieldState.MARKED);
     assert.equal(testField.reveal([1, 1]), false);

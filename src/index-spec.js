@@ -51,6 +51,16 @@ describe('minesweeper', () => {
       expect(game.cellState(cell)).toBe(fieldState[1]);
       expect(game.finished()).toBeTruthy();
     });
+
+    it('should reveal the neighbour to the one mine and immediately win the game by chording', () => {
+      const cell = [0, 0];
+      expect(game.cellState(cell)).toBe(fieldState.UNKNOWN);
+      expect(game.chord(cell)).toBe(gameState.WON);
+      expect(gameStateTransitions).toEqual([[gameState.WON, gameState.NOT_STARTED]]);
+      expect(game.state()).toBe(gameState.WON);
+      expect(game.cellState(cell)).toBe(fieldState[1]);
+      expect(game.finished()).toBeTruthy();
+    });
   });
 
   describe('in test mode (with fixed mines)', () => {

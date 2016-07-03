@@ -48,6 +48,7 @@ const minesweeper = (options) => {
   const chord = (cell) => {
     if (finished() || outOfBounds(cell)) return state;
     const previous_state = state;
+    ensureMinesHaveBeenPlaced(cell);
     if (visibleField.chord(cell, cellStateChangeListeners)) {
       state = gameState.LOST;
     } else {
