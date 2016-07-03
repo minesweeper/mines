@@ -8,8 +8,11 @@ const minesweeper = (options) => {
   const gameStateChangeListeners = [];
   const cellStateChangeListeners = [];
   const remainingMineCountListeners = [];
+  const timerChangeListeners = [];
   const config = configuration(options);
   let state = gameState.NOT_STARTED;
+  let timeStarted = null;
+  let elapsedTime = 0;
   const visibleField = field(config.dimensions, config.mine_count);
 
   const finished = () => (state === gameState.WON || state === gameState.LOST);
@@ -21,6 +24,7 @@ const minesweeper = (options) => {
   const ensureMinesHaveBeenPlaced = ([row, column]) => {
     if (!visibleField.minesPlaced()) {
       visibleField.placeMines(config.mines || randomlyPlaceMines(config, row, column));
+      timeStarted = new Date().getTime();
     }
   };
 
@@ -30,6 +34,10 @@ const minesweeper = (options) => {
 
   const notifyGameStateChangeListeners = (state, previous_state) => map(gameStateChangeListeners, (cb) => {
     cb(state, previous_state);
+  });
+
+  const notifyTimerChangeListeners = (newTime, previousTime) => map(timerChangeListeners, (cb) => {
+    cb(newTime, previousTime);
   });
 
   const reveal = (cell) => {
@@ -74,6 +82,17 @@ const minesweeper = (options) => {
 
   const onRemainingMineCountChange = (listener) => { remainingMineCountListeners.push(listener); };
 
+  const onTimerChange = (listener) => { timerChangeListeners.push(listener); };
+
+  const updateTimer = setInterval(() => {
+    if (state === gameState.STARTED) {
+      const previousElapsedTime = elapsedTime;
+      const now = new Date().getTime();
+      elapsedTime = now - timeStarted;
+      notifyTimerChangeListeners(elapsedTime, previousElapsedTime);
+    }
+  }, 1000);
+
   return assign(config, {
     finished: finished,
     state: () => state,
@@ -85,7 +104,9 @@ const minesweeper = (options) => {
     renderAsString: visibleField.renderAsString,
     onGameStateChange: onGameStateChange,
     onCellStateChange: onCellStateChange,
-    onRemainingMineCountChange: onRemainingMineCountChange
+    onRemainingMineCountChange: onRemainingMineCountChange,
+    onTimerChange: onTimerChange,
+    updateTimer: updateTimer
   });
 };
 
