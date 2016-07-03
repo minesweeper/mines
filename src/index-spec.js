@@ -20,6 +20,10 @@ describe('minesweeper', () => {
       assert.deepEqual(game.dimensions, [16, 30]);
       expect(game.mine_count).toBe(99);
     });
+
+    it('should expose the remaining mine count for a new (unstarted) game', () => {
+      expect(game.remainingMineCount()).toBe(99);
+    });
   });
 
   describe('with 1 x 2 and 1 mine', () => {
@@ -271,8 +275,9 @@ describe('minesweeper', () => {
     });
   });
 
-  describe('out of bounds checking on reveal', () => {
-    let cellStateTransitions = null;
+  describe('remaining mines in test mode (with fixed mines)', () => {
+    let gameStateTransitions = null;
+    let remainingMineCountTransitions = null;
 
     const options = toOptions(`
       * . .
@@ -282,10 +287,40 @@ describe('minesweeper', () => {
 
     beforeEach(() => {
       game = minesweeper(options);
-      cellStateTransitions = [];
-      game.onCellStateChange((cell, state, previous_state) => {
-        cellStateTransitions.push([cell, state, previous_state]);
+
+      gameStateTransitions = [];
+      game.onGameStateChange((state, previous_state) => {
+        gameStateTransitions.push([state, previous_state]);
       });
+      remainingMineCountTransitions = [];
+      game.onRemainingMineCountChange((remainingMineCount, previousRemainingMineCount) => {
+         remainingMineCountTransitions.push([remainingMineCount, previousRemainingMineCount]);
+      });
+    });
+
+    it('should expose remainingMineCount', () => {
+      expect(game.remainingMineCount()).toBe(1);
+      expect(game.mark([0, 0])).toBe(gameState.NOT_STARTED);
+      expect(game.remainingMineCount()).toBe(0);
+      expect(game.mark([1, 1])).toBe(gameState.NOT_STARTED);
+      expect(game.remainingMineCount()).toBe(0);
+      expect(remainingMineCountTransitions).toEqual([[0, 1], [0, 0]]);
+      expect(gameStateTransitions).toEqual([
+        [gameState.NOT_STARTED, gameState.NOT_STARTED],
+        [gameState.NOT_STARTED, gameState.NOT_STARTED]
+      ]);
+    });
+  });
+
+  describe('out of bounds checking on reveal', () => {
+    const options = toOptions(`
+      * . .
+      . . .
+      . . .
+    `);
+
+    beforeEach(() => {
+      game = minesweeper(options);
     });
 
     it('should ignore reveals under row bounds', () => {
@@ -310,8 +345,6 @@ describe('minesweeper', () => {
   });
 
   describe('out of bounds checking on chord', () => {
-    let cellStateTransitions = null;
-
     const options = toOptions(`
       * . .
       . . .
@@ -320,10 +353,6 @@ describe('minesweeper', () => {
 
     beforeEach(() => {
       game = minesweeper(options);
-      cellStateTransitions = [];
-      game.onCellStateChange((cell, state, previous_state) => {
-        cellStateTransitions.push([cell, state, previous_state]);
-      });
     });
 
     it('should ignore chords under row bounds', () => {
@@ -349,8 +378,6 @@ describe('minesweeper', () => {
   });
 
   describe('out of bounds checking on mark', () => {
-    let cellStateTransitions = null;
-
     const options = toOptions(`
       * . .
       . . .
@@ -359,10 +386,6 @@ describe('minesweeper', () => {
 
     beforeEach(() => {
       game = minesweeper(options);
-      cellStateTransitions = [];
-      game.onCellStateChange((cell, state, previous_state) => {
-        cellStateTransitions.push([cell, state, previous_state]);
-      });
     });
 
     it('should ignore marks under row bounds', () => {

@@ -25,7 +25,7 @@ describe('with a mine placed', () => {
   let testField = null;
 
   beforeEach(() => {
-    testField = field(dimensions);
+    testField = field(dimensions, 1);
     testField.placeMines([mine_cell]);
   });
 
@@ -56,7 +56,7 @@ describe('chording', () => {
   let testField = null;
 
   beforeEach(() => {
-    testField = field(dimensions);
+    testField = field(dimensions, 1);
     testField.placeMines([mine_cell]);
   });
 
@@ -71,13 +71,44 @@ describe('chording', () => {
     assert.equal(testField.mark(cell), fieldState.MARKED);
     assert.equal(testField.mark(cell), fieldState.QUESTION);
     assert.equal(testField.chord(cell), false);
+
   });
 
   it('is ignored if the cell is a number and marked neighbours doesn\'t match the number', () => {
-    const cell = [1, 1];
-    assert.equal(testField.reveal(cell), false);
-    assert.equal(testField.cellState(cell), fieldState[1]);
-    assert.equal(testField.chord(cell), false);
+    const centreCell = [1, 1];
+    assert.equal(testField.reveal(centreCell), false);
+    assert.equal(testField.cellState(centreCell), fieldState[1]);
+    assert.equal(testField.chord(centreCell), false);
+    assert.equal(testField.cellState([0, 0]), fieldState.UNKNOWN);
+    assert.equal(testField.cellState([0, 1]), fieldState.UNKNOWN);
+    assert.equal(testField.cellState([0, 2]), fieldState.UNKNOWN);
+    assert.equal(testField.cellState([1, 0]), fieldState.UNKNOWN);
+    assert.equal(testField.cellState(centreCell), fieldState[1]);
+    assert.equal(testField.cellState([1, 2]), fieldState.UNKNOWN);
+    assert.equal(testField.cellState([2, 0]), fieldState.UNKNOWN);
+    assert.equal(testField.cellState([2, 1]), fieldState.UNKNOWN);
+    assert.equal(testField.cellState([2, 2]), fieldState.UNKNOWN);
+    assert.equal(testField.allCellsWithoutMinesRevealed(), false);
+  });
+
+  it('is ignored if the cell is a number and question mark neighbours matches the number', () => {
+    const centreCell = [1, 1];
+    const mineCell = [0, 0];
+    assert.equal(testField.reveal(centreCell), false);
+    assert.equal(testField.cellState(centreCell), fieldState[1]);
+    assert.equal(testField.mark(mineCell), fieldState.MARKED);
+    assert.equal(testField.mark(mineCell), fieldState.QUESTION);
+    assert.equal(testField.chord(centreCell), false);
+    assert.equal(testField.cellState(mineCell), fieldState.QUESTION);
+    assert.equal(testField.cellState([0, 1]), fieldState.UNKNOWN);
+    assert.equal(testField.cellState([0, 2]), fieldState.UNKNOWN);
+    assert.equal(testField.cellState([1, 0]), fieldState.UNKNOWN);
+    assert.equal(testField.cellState(centreCell), fieldState[1]);
+    assert.equal(testField.cellState([1, 2]), fieldState.UNKNOWN);
+    assert.equal(testField.cellState([2, 0]), fieldState.UNKNOWN);
+    assert.equal(testField.cellState([2, 1]), fieldState.UNKNOWN);
+    assert.equal(testField.cellState([2, 2]), fieldState.UNKNOWN);
+    assert.equal(testField.allCellsWithoutMinesRevealed(), false);
   });
 
   it('acts as a reveal if the mine is not revealed and not marked', () => {
@@ -121,6 +152,35 @@ describe('chording', () => {
     assert.equal(testField.cellState([2, 1]), fieldState[0]);
     assert.equal(testField.cellState([2, 2]), fieldState[0]);
     assert.equal(testField.allCellsWithoutMinesRevealed(), false);
+  });
+});
+
+describe('remaining mine count', () => {
+  const dimensions = [3, 3];
+  const mine_cell = [0, 0];
+  let testField = null;
+
+  beforeEach(() => {
+    testField = field(dimensions, 1);
+    testField.placeMines([mine_cell]);
+  });
+
+  it('should be equal to the initial mine count before a game is started', () => {
+    expect(testField.remainingMineCount()).toBe(1);
+  });
+
+  it('should be equal to the number of mines minus the number of flags', () => {
+    expect(testField.mark([0, 0])).toBe(fieldState.MARKED);
+    expect(testField.remainingMineCount()).toBe(0);
+  });
+
+  it('cannot be negative as you cannot mark more mines than there are placed', () => {
+    expect(testField.cellState([0, 1])).toBe(fieldState.UNKNOWN);
+    expect(testField.remainingMineCount()).toBe(1);
+    expect(testField.mark([0, 0])).toBe(fieldState.MARKED);
+    expect(testField.remainingMineCount()).toBe(0);
+    expect(testField.mark([0, 1])).toBe(fieldState.UNKNOWN);
+    expect(testField.remainingMineCount()).toBe(0);
   });
 
 });
