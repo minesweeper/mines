@@ -8,20 +8,17 @@ const minesweeper = (options) => {
   const gameStateChangeListeners = [];
   const cellStateChangeListeners = [];
   const remainingMineCountListeners = [];
+  const timerChangeListeners = [];
   const config = configuration(options);
   let state = gameState.NOT_STARTED;
+  let timeStarted = null;
+  let elapsedTime = 0;
   const visibleField = field(config.dimensions, config.mine_count);
 
   const finished = () => (state === gameState.WON || state === gameState.LOST);
 
   const outOfBounds = ([row, column]) => {
     return (row < 0 || row > (config.dimensions[0] - 1) || column < 0 || column > (config.dimensions[1] - 1));
-  };
-
-  const ensureMinesHaveBeenPlaced = ([row, column]) => {
-    if (!visibleField.minesPlaced()) {
-      visibleField.placeMines(config.mines || randomlyPlaceMines(config, row, column));
-    }
   };
 
   const notifyRemainingMineCountListeners = (remainingMineCount, previousRemainingMineCount) => map(remainingMineCountListeners, (cb) => {
@@ -31,6 +28,29 @@ const minesweeper = (options) => {
   const notifyGameStateChangeListeners = (state, previous_state) => map(gameStateChangeListeners, (cb) => {
     cb(state, previous_state);
   });
+
+  const notifyTimerChangeListeners = (newTime, previousTime) => map(timerChangeListeners, (cb) => {
+    cb(newTime, previousTime);
+  });
+
+  const startTimer = () => {
+    setInterval(() => {
+      if (!timeStarted) { timeStarted = new Date().getTime(); }
+      if (state === gameState.STARTED) {
+        const previousElapsedTime = elapsedTime;
+        const now = new Date().getTime();
+        elapsedTime = now - timeStarted;
+        notifyTimerChangeListeners(elapsedTime, previousElapsedTime);
+      }
+    }, 500);
+  };
+
+  const ensureMinesHaveBeenPlaced = ([row, column]) => {
+    if (!visibleField.minesPlaced()) {
+      visibleField.placeMines(config.mines || randomlyPlaceMines(config, row, column));
+      startTimer();
+    }
+  };
 
   const reveal = (cell) => {
     if (finished() || outOfBounds(cell)) return state;
@@ -74,6 +94,8 @@ const minesweeper = (options) => {
 
   const onRemainingMineCountChange = (listener) => { remainingMineCountListeners.push(listener); };
 
+  const onTimerChange = (listener) => { timerChangeListeners.push(listener); };
+
   return assign(config, {
     finished: finished,
     state: () => state,
@@ -85,7 +107,8 @@ const minesweeper = (options) => {
     renderAsString: visibleField.renderAsString,
     onGameStateChange: onGameStateChange,
     onCellStateChange: onCellStateChange,
-    onRemainingMineCountChange: onRemainingMineCountChange
+    onRemainingMineCountChange: onRemainingMineCountChange,
+    onTimerChange: onTimerChange
   });
 };
 
