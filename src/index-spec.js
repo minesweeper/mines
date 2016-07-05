@@ -417,7 +417,42 @@ describe('minesweeper', () => {
     it('should ignore marks under and over row/column bounds', () => {
       expect(game.mark([-1, 3])).toBe(gameState.NOT_STARTED);
     });
-
   });
 
+  describe('in test mode (with fixed mines)', () => {
+    const si = global.setInterval;
+    let timerCallback = null;
+    let timerInterval = null;
+
+    const options = toOptions(`
+      * . .
+      . . .
+      . . *
+    `);
+
+    beforeEach(() => {
+      global.setInterval = (cb, time) => {
+        timerCallback = cb;
+        timerInterval = time;
+      };
+      game = minesweeper(options);
+    });
+
+    afterEach(() => { global.setInterval = si; });
+
+    it('should start timer when game starts', () => {
+      expect(timerCallback).toBe(null);
+      expect(timerInterval).toBe(null);
+      expect(game.started()).toBe(null);
+
+      expect(game.reveal([1, 1])).toBe(gameState.STARTED);
+
+      expect(timerCallback).toNotBe(null);
+      expect(timerInterval).toBe(500);
+
+      timerCallback();
+
+      expect(game.started()).toNotBe(null);
+    });
+  });
 });

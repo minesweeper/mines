@@ -34,7 +34,7 @@ const minesweeper = (options) => {
   });
 
   const startTimer = () => {
-    setInterval(() => {
+    global.setInterval(() => {
       if (!timeStarted) { timeStarted = new Date().getTime(); }
       if (state === gameState.STARTED) {
         const previousElapsedTime = elapsedTime;
@@ -108,7 +108,8 @@ const minesweeper = (options) => {
     onGameStateChange: onGameStateChange,
     onCellStateChange: onCellStateChange,
     onRemainingMineCountChange: onRemainingMineCountChange,
-    onTimerChange: onTimerChange
+    onTimerChange: onTimerChange,
+    started: () => timeStarted
   });
 };
 
