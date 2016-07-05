@@ -59,11 +59,11 @@ const minesweeper = (options) => {
     }
   };
 
-  const reveal = (cell) => {
+  const changeFieldStateWith = (fieldMethod, cell) => {
     if (finished() || outOfBounds(cell)) return state;
     const previous_state = state;
     ensureMinesHaveBeenPlaced(cell);
-    if (visibleField.reveal(cell, cellStateChangeListeners)) {
+    if (fieldMethod(cell, cellStateChangeListeners)) {
       state = gameState.LOST;
     } else {
       state = visibleField.allCellsWithoutMinesRevealed() ? gameState.WON : gameState.STARTED;
@@ -72,18 +72,8 @@ const minesweeper = (options) => {
     return state;
   };
 
-  const chord = (cell) => {
-    if (finished() || outOfBounds(cell)) return state;
-    const previous_state = state;
-    ensureMinesHaveBeenPlaced(cell);
-    if (visibleField.chord(cell, cellStateChangeListeners)) {
-      state = gameState.LOST;
-    } else {
-      state = visibleField.allCellsWithoutMinesRevealed() ? gameState.WON : gameState.STARTED;
-    }
-    notifyGameStateChangeListeners(state, previous_state);
-    return state;
-  };
+  const reveal = (cell) => changeFieldStateWith(visibleField.reveal, cell);
+  const chord = (cell) => changeFieldStateWith(visibleField.chord, cell);
 
   const mark = (cell) => {
     if (finished() || outOfBounds(cell)) return state;
