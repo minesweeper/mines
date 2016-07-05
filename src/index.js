@@ -13,12 +13,19 @@ const minesweeper = (options) => {
   let state = gameState.NOT_STARTED;
   let timeStarted = null;
   let elapsedTime = 0;
-  const visibleField = field(config.dimensions, config.mine_count);
+  let visibleField = field(config.dimensions, config.mine_count);
 
   const finished = () => (state === gameState.WON || state === gameState.LOST);
 
   const outOfBounds = ([row, column]) => {
     return (row < 0 || row > (config.dimensions[0] - 1) || column < 0 || column > (config.dimensions[1] - 1));
+  };
+
+  const reset = () => {
+    state = gameState.NOT_STARTED;
+    timeStarted = null;
+    elapsedTime = 0;
+    visibleField = field(config.dimensions, config.mine_count);
   };
 
   const appendListener = (listeners, cb) => { listeners.push(cb); };
@@ -91,17 +98,18 @@ const minesweeper = (options) => {
   return assign(config, {
     finished: finished,
     state: () => state,
-    cellState: visibleField.cellState,
-    remainingMineCount: visibleField.remainingMineCount,
+    cellState: (cell) => visibleField.cellState(cell),
+    remainingMineCount: () => visibleField.remainingMineCount(),
     mark: mark,
     chord: chord,
     reveal: reveal,
-    renderAsString: visibleField.renderAsString,
+    renderAsString: () => visibleField.renderAsString(),
     onGameStateChange: onGameStateChange,
     onCellStateChange: onCellStateChange,
     onRemainingMineCountChange: onRemainingMineCountChange,
     onTimerChange: onTimerChange,
-    started: () => timeStarted
+    started: () => timeStarted,
+    reset: reset
   });
 };
 

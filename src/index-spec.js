@@ -228,6 +228,18 @@ describe('minesweeper', () => {
         [[2, 1], fieldState[1], fieldState.UNKNOWN]
       ]);
     });
+
+    it('should allow game to be reset', () => {
+      expect(game.reveal([2, 2])).toBe(gameState.LOST);
+
+      game.reset();
+
+      expect(game.state()).toBe(gameState.NOT_STARTED);
+      expect(game.started()).toBe(null);
+      expect(game.cellState([2, 2])).toBe(fieldState.UNKNOWN);
+
+      expect(game.reveal([1, 1])).toBe(gameState.STARTED);
+    });
   });
 
   describe('chording in test mode (with fixed mines)', () => {
