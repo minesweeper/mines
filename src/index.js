@@ -21,17 +21,17 @@ const minesweeper = (options) => {
     return (row < 0 || row > (config.dimensions[0] - 1) || column < 0 || column > (config.dimensions[1] - 1));
   };
 
-  const notifyRemainingMineCountListeners = (remainingMineCount, previousRemainingMineCount) => map(remainingMineCountListeners, (cb) => {
-    cb(remainingMineCount, previousRemainingMineCount);
-  });
+  const appendListener = (listeners, cb) => { listeners.push(cb); };
+  const notifyListeners = (listeners, current, previous) => map(listeners, (cb) => { cb(current, previous); });
 
-  const notifyGameStateChangeListeners = (state, previous_state) => map(gameStateChangeListeners, (cb) => {
-    cb(state, previous_state);
-  });
+  const notifyGameStateChangeListeners = notifyListeners.bind(null, gameStateChangeListeners);
+  const notifyRemainingMineCountListeners = notifyListeners.bind(null, remainingMineCountListeners);
+  const notifyTimerChangeListeners = notifyListeners.bind(null, timerChangeListeners);
 
-  const notifyTimerChangeListeners = (newTime, previousTime) => map(timerChangeListeners, (cb) => {
-    cb(newTime, previousTime);
-  });
+  const onGameStateChange = appendListener.bind(null, gameStateChangeListeners);
+  const onCellStateChange = appendListener.bind(null, cellStateChangeListeners);
+  const onRemainingMineCountChange = appendListener.bind(null, remainingMineCountListeners);
+  const onTimerChange = appendListener.bind(null, timerChangeListeners);
 
   const startTimer = () => {
     global.setInterval(() => {
@@ -87,14 +87,6 @@ const minesweeper = (options) => {
     notifyRemainingMineCountListeners(visibleField.remainingMineCount(), previousRemainingMines);
     return state;
   };
-
-  const onGameStateChange = (listener) => { gameStateChangeListeners.push(listener); };
-
-  const onCellStateChange = (listener) => { cellStateChangeListeners.push(listener); };
-
-  const onRemainingMineCountChange = (listener) => { remainingMineCountListeners.push(listener); };
-
-  const onTimerChange = (listener) => { timerChangeListeners.push(listener); };
 
   return assign(config, {
     finished: finished,
