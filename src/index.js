@@ -85,21 +85,12 @@ const minesweeper = (options) => {
     return state;
   };
 
-  return assign(config, {
-    finished: finished,
+  return assign(config, {finished, mark, chord, reveal, onGameStateChange, onCellStateChange, onRemainingMineCountChange, onTimerChange, reset,
     state: () => state,
     cellState: (cell) => visibleField.cellState(cell),
     remainingMineCount: () => visibleField.remainingMineCount(),
-    mark: mark,
-    chord: chord,
-    reveal: reveal,
     renderAsString: () => visibleField.renderAsString(),
-    onGameStateChange: onGameStateChange,
-    onCellStateChange: onCellStateChange,
-    onRemainingMineCountChange: onRemainingMineCountChange,
-    onTimerChange: onTimerChange,
-    started: () => timeStarted,
-    reset: reset
+    started: () => timeStarted
   });
 };
 
