@@ -1,6 +1,6 @@
 import minesweeper from '.';
-import gameState from './gameState';
-import fieldState from './fieldState';
+import gameStates from '../gameStates';
+import cellStates from '../cellStates';
 import toOptions from './toOptions';
 
 describe('minesweeper', () => {
@@ -13,7 +13,7 @@ describe('minesweeper', () => {
 
     it('should have initial state for default game', () => {
       expect(game.finished()).toBeFalsy();
-      expect(game.state()).toBe(gameState.NOT_STARTED);
+      expect(game.state()).toBe(gameStates.NOT_STARTED);
     });
 
     it('should default to the expert size for a new game', () => {
@@ -38,27 +38,27 @@ describe('minesweeper', () => {
 
     it('should have initial state for configured game', () => {
       expect(game.finished()).toBeFalsy();
-      expect(game.state()).toBe(gameState.NOT_STARTED);
+      expect(game.state()).toBe(gameStates.NOT_STARTED);
       expect(game.test_mode).toBeFalsy();
     });
 
     it('should reveal the neighbour to the one mine and immediately win the game', () => {
       const cell = [0, 0];
-      expect(game.cellState(cell)).toBe(fieldState.UNKNOWN);
-      expect(game.reveal(cell)).toBe(gameState.WON);
-      expect(gameStateTransitions).toEqual([[gameState.WON, gameState.NOT_STARTED]]);
-      expect(game.state()).toBe(gameState.WON);
-      expect(game.cellState(cell)).toBe(fieldState[1]);
+      expect(game.cellState(cell)).toBe(cellStates.UNKNOWN);
+      expect(game.reveal(cell)).toBe(gameStates.WON);
+      expect(gameStateTransitions).toEqual([[gameStates.WON, gameStates.NOT_STARTED]]);
+      expect(game.state()).toBe(gameStates.WON);
+      expect(game.cellState(cell)).toBe(cellStates[1]);
       expect(game.finished()).toBeTruthy();
     });
 
     it('should reveal the neighbour to the one mine and immediately win the game by chording', () => {
       const cell = [0, 0];
-      expect(game.cellState(cell)).toBe(fieldState.UNKNOWN);
-      expect(game.chord(cell)).toBe(gameState.WON);
-      expect(gameStateTransitions).toEqual([[gameState.WON, gameState.NOT_STARTED]]);
-      expect(game.state()).toBe(gameState.WON);
-      expect(game.cellState(cell)).toBe(fieldState[1]);
+      expect(game.cellState(cell)).toBe(cellStates.UNKNOWN);
+      expect(game.chord(cell)).toBe(gameStates.WON);
+      expect(gameStateTransitions).toEqual([[gameStates.WON, gameStates.NOT_STARTED]]);
+      expect(game.state()).toBe(gameStates.WON);
+      expect(game.cellState(cell)).toBe(cellStates[1]);
       expect(game.finished()).toBeTruthy();
     });
   });
@@ -81,31 +81,31 @@ describe('minesweeper', () => {
 
     it('should have initial state', () => {
       expect(game.finished()).toBeFalsy();
-      expect(game.state()).toBe(gameState.NOT_STARTED);
+      expect(game.state()).toBe(gameStates.NOT_STARTED);
       expect(game.test_mode).toBeTruthy();
     });
 
     it('should ignore mark when already revealed', () => {
       const cell = [0, 0];
-      expect(game.reveal(cell)).toBe(gameState.STARTED);
-      expect(game.cellState(cell)).toBe(fieldState[1]);
-      expect(game.mark(cell)).toBe(gameState.STARTED);
-      expect(game.cellState(cell)).toBe(fieldState[1]);
+      expect(game.reveal(cell)).toBe(gameStates.STARTED);
+      expect(game.cellState(cell)).toBe(cellStates[1]);
+      expect(game.mark(cell)).toBe(gameStates.STARTED);
+      expect(game.cellState(cell)).toBe(cellStates[1]);
     });
 
     describe('when a cell is marked as a mine', () => {
       const cell = [1, 1];
 
       beforeEach(() => {
-        expect(game.mark(cell)).toBe(gameState.NOT_STARTED);
-        expect(game.cellState(cell)).toBe(fieldState.MARKED);
+        expect(game.mark(cell)).toBe(gameStates.NOT_STARTED);
+        expect(game.cellState(cell)).toBe(cellStates.MARKED);
       });
 
       it('should ignore reveal', () => {
-        expect(game.reveal(cell)).toBe(gameState.STARTED);
-        expect(game.cellState(cell)).toBe(fieldState.MARKED);
+        expect(game.reveal(cell)).toBe(gameStates.STARTED);
+        expect(game.cellState(cell)).toBe(cellStates.MARKED);
         expect(cellStateTransitions).toEqual([
-          [cell, fieldState.MARKED, fieldState.UNKNOWN]
+          [cell, cellStates.MARKED, cellStates.UNKNOWN]
         ]);
       });
     });
@@ -114,28 +114,28 @@ describe('minesweeper', () => {
       const cell = [1, 1];
 
       beforeEach(() => {
-        expect(game.mark(cell)).toBe(gameState.NOT_STARTED);
-        expect(game.cellState(cell)).toBe(fieldState.MARKED);
-        expect(game.mark(cell)).toBe(gameState.NOT_STARTED);
-        expect(game.cellState(cell)).toBe(fieldState.QUESTION);
+        expect(game.mark(cell)).toBe(gameStates.NOT_STARTED);
+        expect(game.cellState(cell)).toBe(cellStates.MARKED);
+        expect(game.mark(cell)).toBe(gameStates.NOT_STARTED);
+        expect(game.cellState(cell)).toBe(cellStates.QUESTION);
       });
 
       it('should allow cycle back to unknown by marking again', () => {
-        expect(game.mark(cell)).toBe(gameState.NOT_STARTED);
-        expect(game.cellState(cell)).toBe(fieldState.UNKNOWN);
+        expect(game.mark(cell)).toBe(gameStates.NOT_STARTED);
+        expect(game.cellState(cell)).toBe(cellStates.UNKNOWN);
         expect(cellStateTransitions).toEqual([
-          [cell, fieldState.MARKED, fieldState.UNKNOWN],
-          [cell, fieldState.QUESTION, fieldState.MARKED],
-          [cell, fieldState.UNKNOWN, fieldState.QUESTION]
+          [cell, cellStates.MARKED, cellStates.UNKNOWN],
+          [cell, cellStates.QUESTION, cellStates.MARKED],
+          [cell, cellStates.UNKNOWN, cellStates.QUESTION]
         ]);
       });
 
       it('should ignore reveal', () => {
-        expect(game.reveal(cell)).toBe(gameState.STARTED);
-        expect(game.cellState(cell)).toBe(fieldState.QUESTION);
+        expect(game.reveal(cell)).toBe(gameStates.STARTED);
+        expect(game.cellState(cell)).toBe(cellStates.QUESTION);
         expect(cellStateTransitions).toEqual([
-          [cell, fieldState.MARKED, fieldState.UNKNOWN],
-          [cell, fieldState.QUESTION, fieldState.MARKED]
+          [cell, cellStates.MARKED, cellStates.UNKNOWN],
+          [cell, cellStates.QUESTION, cellStates.MARKED]
         ]);
       });
     });
@@ -148,14 +148,14 @@ describe('minesweeper', () => {
       const yet_another_mine_cell = [1, 3];
 
       beforeEach(() => {
-        expect(game.mark(safe_cell)).toBe(gameState.NOT_STARTED);
-        expect(game.mark(another_mine_cell)).toBe(gameState.NOT_STARTED);
-        expect(game.reveal(mine_cell)).toBe(gameState.LOST);
-        expect(game.state()).toBe(gameState.LOST);
+        expect(game.mark(safe_cell)).toBe(gameStates.NOT_STARTED);
+        expect(game.mark(another_mine_cell)).toBe(gameStates.NOT_STARTED);
+        expect(game.reveal(mine_cell)).toBe(gameStates.LOST);
+        expect(game.state()).toBe(gameStates.LOST);
       });
 
       it('last selected mine should be exploded', () => {
-        expect(game.cellState(mine_cell)).toBe(fieldState.EXPLODED_MINE);
+        expect(game.cellState(mine_cell)).toBe(cellStates.EXPLODED_MINE);
       });
 
       it('game should finished', () => {
@@ -163,36 +163,36 @@ describe('minesweeper', () => {
       });
 
       it('other mines should be revealed', () => {
-        expect(game.cellState(yet_another_mine_cell)).toBe(fieldState.MINE);
+        expect(game.cellState(yet_another_mine_cell)).toBe(cellStates.MINE);
       });
 
       it('incorrectly marked mines should be revealed', () => {
-        expect(game.cellState(safe_cell)).toBe(fieldState.INCORRECTLY_MARKED_MINE);
+        expect(game.cellState(safe_cell)).toBe(cellStates.INCORRECTLY_MARKED_MINE);
       });
 
       it('cell transitions should include revealing other mines', () => {
         expect(cellStateTransitions).toEqual([
-          [safe_cell, fieldState.MARKED, fieldState.UNKNOWN],
-          [another_mine_cell, fieldState.MARKED, fieldState.UNKNOWN],
-          [mine_cell, fieldState.EXPLODED_MINE, fieldState.UNKNOWN],
-          [yet_another_mine_cell, fieldState.MINE, fieldState.UNKNOWN],
-          [safe_cell, fieldState.INCORRECTLY_MARKED_MINE, fieldState.MARKED]
+          [safe_cell, cellStates.MARKED, cellStates.UNKNOWN],
+          [another_mine_cell, cellStates.MARKED, cellStates.UNKNOWN],
+          [mine_cell, cellStates.EXPLODED_MINE, cellStates.UNKNOWN],
+          [yet_another_mine_cell, cellStates.MINE, cellStates.UNKNOWN],
+          [safe_cell, cellStates.INCORRECTLY_MARKED_MINE, cellStates.MARKED]
         ]);
       });
 
       it('should make no further state changes when game is lost', () => {
-        expect(game.reveal(another_safe_cell)).toBe(gameState.LOST);
-        expect(game.cellState(another_safe_cell)).toBe(fieldState.UNKNOWN);
+        expect(game.reveal(another_safe_cell)).toBe(gameStates.LOST);
+        expect(game.cellState(another_safe_cell)).toBe(cellStates.UNKNOWN);
         expect(game.finished()).toBeTruthy();
       });
     });
 
     it('should reveal two adjacent mines', () => {
       const cell = [0, 1];
-      expect(game.cellState(cell)).toBe(fieldState.UNKNOWN);
-      expect(game.reveal(cell)).toBe(gameState.STARTED);
-      expect(game.state()).toBe(gameState.STARTED);
-      expect(game.cellState(cell)).toBe(fieldState[2]);
+      expect(game.cellState(cell)).toBe(cellStates.UNKNOWN);
+      expect(game.reveal(cell)).toBe(gameStates.STARTED);
+      expect(game.state()).toBe(gameStates.STARTED);
+      expect(game.cellState(cell)).toBe(cellStates[2]);
       expect(game.finished()).toBeFalsy();
     });
   });
@@ -215,30 +215,30 @@ describe('minesweeper', () => {
     });
 
     it('should recursively reveal mines', () => {
-      expect(game.reveal([0, 0])).toBe(gameState.WON);
-      expect(game.state()).toBe(gameState.WON);
+      expect(game.reveal([0, 0])).toBe(gameStates.WON);
+      expect(game.state()).toBe(gameStates.WON);
       expect(cellStateTransitions).toEqual([
-        [[0, 0], fieldState[0], fieldState.UNKNOWN],
-        [[0, 1], fieldState[0], fieldState.UNKNOWN],
-        [[0, 2], fieldState[0], fieldState.UNKNOWN],
-        [[1, 1], fieldState[1], fieldState.UNKNOWN],
-        [[1, 2], fieldState[1], fieldState.UNKNOWN],
-        [[1, 0], fieldState[0], fieldState.UNKNOWN],
-        [[2, 0], fieldState[0], fieldState.UNKNOWN],
-        [[2, 1], fieldState[1], fieldState.UNKNOWN]
+        [[0, 0], cellStates[0], cellStates.UNKNOWN],
+        [[0, 1], cellStates[0], cellStates.UNKNOWN],
+        [[0, 2], cellStates[0], cellStates.UNKNOWN],
+        [[1, 1], cellStates[1], cellStates.UNKNOWN],
+        [[1, 2], cellStates[1], cellStates.UNKNOWN],
+        [[1, 0], cellStates[0], cellStates.UNKNOWN],
+        [[2, 0], cellStates[0], cellStates.UNKNOWN],
+        [[2, 1], cellStates[1], cellStates.UNKNOWN]
       ]);
     });
 
     it('should allow game to be reset', () => {
-      expect(game.reveal([2, 2])).toBe(gameState.LOST);
+      expect(game.reveal([2, 2])).toBe(gameStates.LOST);
 
       game.reset();
 
-      expect(game.state()).toBe(gameState.NOT_STARTED);
+      expect(game.state()).toBe(gameStates.NOT_STARTED);
       expect(game.started()).toBe(null);
-      expect(game.cellState([2, 2])).toBe(fieldState.UNKNOWN);
+      expect(game.cellState([2, 2])).toBe(cellStates.UNKNOWN);
 
-      expect(game.reveal([1, 1])).toBe(gameState.STARTED);
+      expect(game.reveal([1, 1])).toBe(gameStates.STARTED);
     });
   });
 
@@ -260,39 +260,39 @@ describe('minesweeper', () => {
     });
 
     it('should win game by correctly revealing unknown cells around a number cell when number of flags are the same as the cell number', () => {
-      expect(game.reveal([1, 1])).toBe(gameState.STARTED);
-      expect(game.state()).toBe(gameState.STARTED);
-      expect(game.mark([0, 0])).toBe(gameState.STARTED);
-      expect(game.chord([1, 1])).toBe(gameState.WON);
+      expect(game.reveal([1, 1])).toBe(gameStates.STARTED);
+      expect(game.state()).toBe(gameStates.STARTED);
+      expect(game.mark([0, 0])).toBe(gameStates.STARTED);
+      expect(game.chord([1, 1])).toBe(gameStates.WON);
       expect(cellStateTransitions).toEqual([
-         [[1, 1], fieldState[1], fieldState.UNKNOWN],
-         [[0, 0], fieldState.MARKED, fieldState.UNKNOWN],
-         [[0, 1], fieldState[1], fieldState.UNKNOWN],
-         [[0, 2], fieldState[0], fieldState.UNKNOWN],
-         [[1, 2], fieldState[0], fieldState.UNKNOWN],
-         [[2, 1], fieldState[0], fieldState.UNKNOWN],
-         [[1, 0], fieldState[1], fieldState.UNKNOWN],
-         [[2, 0], fieldState[0], fieldState.UNKNOWN],
-         [[2, 2], fieldState[0], fieldState.UNKNOWN]
+         [[1, 1], cellStates[1], cellStates.UNKNOWN],
+         [[0, 0], cellStates.MARKED, cellStates.UNKNOWN],
+         [[0, 1], cellStates[1], cellStates.UNKNOWN],
+         [[0, 2], cellStates[0], cellStates.UNKNOWN],
+         [[1, 2], cellStates[0], cellStates.UNKNOWN],
+         [[2, 1], cellStates[0], cellStates.UNKNOWN],
+         [[1, 0], cellStates[1], cellStates.UNKNOWN],
+         [[2, 0], cellStates[0], cellStates.UNKNOWN],
+         [[2, 2], cellStates[0], cellStates.UNKNOWN]
       ]);
     });
 
     it('should lose game by incorrectly revealing unknown cells around a number cell when number of flags are the same as the cell number', () => {
-      expect(game.reveal([1, 1])).toBe(gameState.STARTED);
-      expect(game.state()).toBe(gameState.STARTED);
-      expect(game.mark([1, 0])).toBe(gameState.STARTED);
-      expect(game.chord([1, 1])).toBe(gameState.LOST);
+      expect(game.reveal([1, 1])).toBe(gameStates.STARTED);
+      expect(game.state()).toBe(gameStates.STARTED);
+      expect(game.mark([1, 0])).toBe(gameStates.STARTED);
+      expect(game.chord([1, 1])).toBe(gameStates.LOST);
       expect(cellStateTransitions).toEqual([
-         [[1, 1], fieldState[1], fieldState.UNKNOWN],
-         [[1, 0], fieldState.MARKED, fieldState.UNKNOWN],
-         [[0, 0], fieldState.EXPLODED_MINE, fieldState.UNKNOWN],
-         [[1, 0], fieldState.INCORRECTLY_MARKED_MINE, fieldState.MARKED],
-         [[0, 1], fieldState[1], fieldState.UNKNOWN],
-         [[0, 2], fieldState[0], fieldState.UNKNOWN],
-         [[1, 2], fieldState[0], fieldState.UNKNOWN],
-         [[2, 1], fieldState[0], fieldState.UNKNOWN],
-         [[2, 0], fieldState[0], fieldState.UNKNOWN],
-         [[2, 2], fieldState[0], fieldState.UNKNOWN]
+         [[1, 1], cellStates[1], cellStates.UNKNOWN],
+         [[1, 0], cellStates.MARKED, cellStates.UNKNOWN],
+         [[0, 0], cellStates.EXPLODED_MINE, cellStates.UNKNOWN],
+         [[1, 0], cellStates.INCORRECTLY_MARKED_MINE, cellStates.MARKED],
+         [[0, 1], cellStates[1], cellStates.UNKNOWN],
+         [[0, 2], cellStates[0], cellStates.UNKNOWN],
+         [[1, 2], cellStates[0], cellStates.UNKNOWN],
+         [[2, 1], cellStates[0], cellStates.UNKNOWN],
+         [[2, 0], cellStates[0], cellStates.UNKNOWN],
+         [[2, 2], cellStates[0], cellStates.UNKNOWN]
       ]);
     });
   });
@@ -322,14 +322,14 @@ describe('minesweeper', () => {
 
     it('should expose remainingMineCount', () => {
       expect(game.remainingMineCount()).toBe(1);
-      expect(game.mark([0, 0])).toBe(gameState.NOT_STARTED);
+      expect(game.mark([0, 0])).toBe(gameStates.NOT_STARTED);
       expect(game.remainingMineCount()).toBe(0);
-      expect(game.mark([1, 1])).toBe(gameState.NOT_STARTED);
+      expect(game.mark([1, 1])).toBe(gameStates.NOT_STARTED);
       expect(game.remainingMineCount()).toBe(0);
       expect(remainingMineCountTransitions).toEqual([[0, 1], [0, 0]]);
       expect(gameStateTransitions).toEqual([
-        [gameState.NOT_STARTED, gameState.NOT_STARTED],
-        [gameState.NOT_STARTED, gameState.NOT_STARTED]
+        [gameStates.NOT_STARTED, gameStates.NOT_STARTED],
+        [gameStates.NOT_STARTED, gameStates.NOT_STARTED]
       ]);
     });
   });
@@ -346,23 +346,23 @@ describe('minesweeper', () => {
     });
 
     it('should ignore reveals under row bounds', () => {
-      expect(game.reveal([-1, 1])).toBe(gameState.NOT_STARTED);
+      expect(game.reveal([-1, 1])).toBe(gameStates.NOT_STARTED);
     });
 
     it('should ignore reveals over row bounds', () => {
-      expect(game.reveal([3, 0])).toBe(gameState.NOT_STARTED);
+      expect(game.reveal([3, 0])).toBe(gameStates.NOT_STARTED);
     });
 
     it('should ignore reveals under column bounds', () => {
-      expect(game.reveal([0, -10])).toBe(gameState.NOT_STARTED);
+      expect(game.reveal([0, -10])).toBe(gameStates.NOT_STARTED);
     });
 
     it('should ignore reveals over column bounds', () => {
-      expect(game.reveal([0, 4])).toBe(gameState.NOT_STARTED);
+      expect(game.reveal([0, 4])).toBe(gameStates.NOT_STARTED);
     });
 
     it('should ignore reveals under and over row/column bounds', () => {
-      expect(game.reveal([-1, 3])).toBe(gameState.NOT_STARTED);
+      expect(game.reveal([-1, 3])).toBe(gameStates.NOT_STARTED);
     });
   });
 
@@ -378,23 +378,23 @@ describe('minesweeper', () => {
     });
 
     it('should ignore chords under row bounds', () => {
-      expect(game.chord([-1, 1])).toBe(gameState.NOT_STARTED);
+      expect(game.chord([-1, 1])).toBe(gameStates.NOT_STARTED);
     });
 
     it('should ignore chords over row bounds', () => {
-      expect(game.chord([3, 0])).toBe(gameState.NOT_STARTED);
+      expect(game.chord([3, 0])).toBe(gameStates.NOT_STARTED);
     });
 
     it('should ignore chords under column bounds', () => {
-      expect(game.chord([0, -10])).toBe(gameState.NOT_STARTED);
+      expect(game.chord([0, -10])).toBe(gameStates.NOT_STARTED);
     });
 
     it('should ignore chords over column bounds', () => {
-      expect(game.chord([0, 4])).toBe(gameState.NOT_STARTED);
+      expect(game.chord([0, 4])).toBe(gameStates.NOT_STARTED);
     });
 
     it('should ignore chords under and over row/column bounds', () => {
-      expect(game.chord([-1, 3])).toBe(gameState.NOT_STARTED);
+      expect(game.chord([-1, 3])).toBe(gameStates.NOT_STARTED);
     });
 
   });
@@ -411,23 +411,23 @@ describe('minesweeper', () => {
     });
 
     it('should ignore marks under row bounds', () => {
-      expect(game.mark([-1, 1])).toBe(gameState.NOT_STARTED);
+      expect(game.mark([-1, 1])).toBe(gameStates.NOT_STARTED);
     });
 
     it('should ignore marks over row bounds', () => {
-      expect(game.mark([3, 0])).toBe(gameState.NOT_STARTED);
+      expect(game.mark([3, 0])).toBe(gameStates.NOT_STARTED);
     });
 
     it('should ignore marks under column bounds', () => {
-      expect(game.mark([0, -10])).toBe(gameState.NOT_STARTED);
+      expect(game.mark([0, -10])).toBe(gameStates.NOT_STARTED);
     });
 
     it('should ignore marks over column bounds', () => {
-      expect(game.mark([0, 4])).toBe(gameState.NOT_STARTED);
+      expect(game.mark([0, 4])).toBe(gameStates.NOT_STARTED);
     });
 
     it('should ignore marks under and over row/column bounds', () => {
-      expect(game.mark([-1, 3])).toBe(gameState.NOT_STARTED);
+      expect(game.mark([-1, 3])).toBe(gameStates.NOT_STARTED);
     });
   });
 
@@ -457,7 +457,7 @@ describe('minesweeper', () => {
       expect(timerInterval).toBe(null);
       expect(game.started()).toBe(null);
 
-      expect(game.reveal([1, 1])).toBe(gameState.STARTED);
+      expect(game.reveal([1, 1])).toBe(gameStates.STARTED);
 
       expect(timerCallback).toNotBe(null);
       expect(timerInterval).toBe(500);

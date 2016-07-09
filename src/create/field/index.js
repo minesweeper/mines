@@ -1,4 +1,4 @@
-import fieldState from '../fieldState';
+import cellStates from '../../cellStates';
 import cellNeighbours from './cellNeighbours';
 import renderAsString from './renderAsString';
 import {times, isNil, isEqual, filter, some, map, range, each} from 'lodash';
@@ -14,16 +14,16 @@ export default (dimensions, mineCount) => {
     const row = [];
     state.push(row);
     times(column_count, (column_index) => {
-      row.push(fieldState.UNKNOWN);
+      row.push(cellStates.UNKNOWN);
     });
   });
 
   const marked = ([row, column]) => {
-    return state[row][column] === fieldState.MARKED;
+    return state[row][column] === cellStates.MARKED;
   };
 
   const markedOrQuestioned = ([row, column]) => {
-    return state[row][column] === fieldState.MARKED || state[row][column] === fieldState.QUESTION;
+    return state[row][column] === cellStates.MARKED || state[row][column] === cellStates.QUESTION;
   };
 
   const outOfBounds = ([row, column]) => {
@@ -38,7 +38,7 @@ export default (dimensions, mineCount) => {
 
   const cellState = ([row, column]) => state[row][column];
 
-  const revealed = ([row, column]) => some(range(9), (number) => state[row][column] === fieldState[number]);
+  const revealed = ([row, column]) => some(range(9), (number) => state[row][column] === cellStates[number]);
 
   const notifyListeners = (listeners, cell, state, previous_state) => map(listeners, (cb) => { cb(cell, state, previous_state); });
 
@@ -52,8 +52,8 @@ export default (dimensions, mineCount) => {
     times(row_count, (row) => {
       times(column_count, (column) => {
         const cell = [row, column];
-        if (cellState(cell) === fieldState.MARKED && !isMine(cell)) {
-          setCellState(cell, fieldState.INCORRECTLY_MARKED_MINE, listeners);
+        if (cellState(cell) === cellStates.MARKED && !isMine(cell)) {
+          setCellState(cell, cellStates.INCORRECTLY_MARKED_MINE, listeners);
         }
       });
     });
@@ -61,26 +61,26 @@ export default (dimensions, mineCount) => {
 
   const revealUnmarkedMines = (listeners) => {
     map(mines, (mine) => {
-      if (cellState(mine) === fieldState.UNKNOWN) setCellState(mine, fieldState.MINE, listeners);
+      if (cellState(mine) === cellStates.UNKNOWN) setCellState(mine, cellStates.MINE, listeners);
     });
   };
 
   const finaliseLostGame = (cell, listeners) => {
-    setCellState(cell, fieldState.EXPLODED_MINE, listeners);
+    setCellState(cell, cellStates.EXPLODED_MINE, listeners);
     revealUnmarkedMines(listeners);
     flagIncorrectlyMarkedMines(listeners);
   };
 
   const reveal = (cell, listeners) => {
     if (outOfBounds(cell)) return false;
-    if (cellState(cell) !== fieldState.UNKNOWN) return false;
+    if (cellState(cell) !== cellStates.UNKNOWN) return false;
     if (isMine(cell)) {
       finaliseLostGame(cell, listeners);
       return true;
     }
     const neighbours = cellNeighbours(dimensions, cell);
     const mine_count = neighbouringMines(neighbours).length;
-    const new_state = fieldState[mine_count];
+    const new_state = cellStates[mine_count];
     setCellState(cell, new_state, listeners);
     if (mine_count === 0) map(neighbours, (neighbour) => { reveal(neighbour, listeners); });
     return false;
@@ -127,15 +127,15 @@ export default (dimensions, mineCount) => {
   };
 
   const getNewMarkedState = (oldState) => {
-    if (oldState === fieldState.UNKNOWN) return fieldState.MARKED;
-    if (oldState === fieldState.MARKED) return fieldState.QUESTION;
-    if (oldState === fieldState.QUESTION) return fieldState.UNKNOWN;
+    if (oldState === cellStates.UNKNOWN) return cellStates.MARKED;
+    if (oldState === cellStates.MARKED) return cellStates.QUESTION;
+    if (oldState === cellStates.QUESTION) return cellStates.UNKNOWN;
     throw new Error(`Unknown state of ${oldState} to retrive new marked state`);
   };
 
   const mark = (cell, listeners) => {
     const previous_state = cellState(cell);
-    if (revealed(cell) || (previous_state === fieldState.UNKNOWN && remainingMineCount() === 0)) return previous_state;
+    if (revealed(cell) || (previous_state === cellStates.UNKNOWN && remainingMineCount() === 0)) return previous_state;
     const new_state = getNewMarkedState(previous_state);
     setCellState(cell, new_state, listeners);
     return new_state;
