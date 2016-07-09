@@ -1,6 +1,4 @@
-import minesweeper from '.';
-import gameStates from '../gameStates';
-import cellStates from '../cellStates';
+import {create, gameStates, cellStates} from '.';
 import toOptions from './toOptions';
 
 describe('minesweeper', () => {
@@ -8,7 +6,7 @@ describe('minesweeper', () => {
 
   describe('with defaults', () => {
     beforeEach(() => {
-      game = minesweeper();
+      game = create();
     });
 
     it('should have initial state for default game', () => {
@@ -31,7 +29,7 @@ describe('minesweeper', () => {
     const options = {dimensions: [1, 2], mine_count: 1};
 
     beforeEach(() => {
-      game = minesweeper(options);
+      game = create(options);
       gameStateTransitions = [];
       game.onGameStateChange((state, previous_state) => { gameStateTransitions.push([state, previous_state]); });
     });
@@ -72,7 +70,7 @@ describe('minesweeper', () => {
     `);
 
     beforeEach(() => {
-      game = minesweeper(options);
+      game = create(options);
       cellStateTransitions = [];
       game.onCellStateChange((cell, state, previous_state) => {
         cellStateTransitions.push([cell, state, previous_state]);
@@ -207,7 +205,7 @@ describe('minesweeper', () => {
     `);
 
     beforeEach(() => {
-      game = minesweeper(options);
+      game = create(options);
       cellStateTransitions = [];
       game.onCellStateChange((cell, state, previous_state) => {
         cellStateTransitions.push([cell, state, previous_state]);
@@ -252,7 +250,7 @@ describe('minesweeper', () => {
     `);
 
     beforeEach(() => {
-      game = minesweeper(options);
+      game = create(options);
       cellStateTransitions = [];
       game.onCellStateChange((cell, state, previous_state) => {
         cellStateTransitions.push([cell, state, previous_state]);
@@ -308,7 +306,7 @@ describe('minesweeper', () => {
     `);
 
     beforeEach(() => {
-      game = minesweeper(options);
+      game = create(options);
 
       gameStateTransitions = [];
       game.onGameStateChange((state, previous_state) => {
@@ -342,7 +340,7 @@ describe('minesweeper', () => {
     `);
 
     beforeEach(() => {
-      game = minesweeper(options);
+      game = create(options);
     });
 
     it('should ignore reveals under row bounds', () => {
@@ -374,7 +372,7 @@ describe('minesweeper', () => {
     `);
 
     beforeEach(() => {
-      game = minesweeper(options);
+      game = create(options);
     });
 
     it('should ignore chords under row bounds', () => {
@@ -407,7 +405,7 @@ describe('minesweeper', () => {
     `);
 
     beforeEach(() => {
-      game = minesweeper(options);
+      game = create(options);
     });
 
     it('should ignore marks under row bounds', () => {
@@ -447,7 +445,7 @@ describe('minesweeper', () => {
         timerCallback = cb;
         timerInterval = time;
       };
-      game = minesweeper(options);
+      game = create(options);
     });
 
     afterEach(() => { global.setInterval = si; });
