@@ -22,7 +22,16 @@ export default (options) => {
     return (row < 0 || row > (config.dimensions[0] - 1) || column < 0 || column > (config.dimensions[1] - 1));
   };
 
+  const appendListener = (listeners, cb) => { listeners.push(cb); };
+  const notifyListeners = (listeners, current, previous) => map(listeners, (cb) => { cb(current, previous); });
+
+  const notifyGameStateChangeListeners = notifyListeners.bind(null, gameStateChangeListeners);
+  const notifyRemainingMineCountListeners = notifyListeners.bind(null, remainingMineCountListeners);
+  const notifyTimerChangeListeners = notifyListeners.bind(null, timerChangeListeners);
+
   const reset = () => {
+    const previousElapsedTime = elapsedTime;
+    const previousState = state;
     state = gameStates.NOT_STARTED;
     timeStarted = null;
     elapsedTime = 0;
@@ -31,14 +40,9 @@ export default (options) => {
       global.clearInterval(intervalToken);
       intervalToken = null;
     }
+    notifyTimerChangeListeners(elapsedTime, previousElapsedTime);
+    notifyGameStateChangeListeners(state, previousState);
   };
-
-  const appendListener = (listeners, cb) => { listeners.push(cb); };
-  const notifyListeners = (listeners, current, previous) => map(listeners, (cb) => { cb(current, previous); });
-
-  const notifyGameStateChangeListeners = notifyListeners.bind(null, gameStateChangeListeners);
-  const notifyRemainingMineCountListeners = notifyListeners.bind(null, remainingMineCountListeners);
-  const notifyTimerChangeListeners = notifyListeners.bind(null, timerChangeListeners);
 
   const onGameStateChange = appendListener.bind(null, gameStateChangeListeners);
   const onCellStateChange = appendListener.bind(null, cellStateChangeListeners);

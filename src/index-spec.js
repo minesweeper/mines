@@ -432,8 +432,12 @@ describe('minesweeper', () => {
   describe('in test mode with all callbacks', () => {
     const si = global.setInterval;
     const ci = global.clearInterval;
-    const siCalls = [];
-    const ciCalls = [];
+    let siCalls = [];
+    let ciCalls = [];
+    let gameStateChanges = [];
+    let cellStateChanges = [];
+    let remainingMineCountChange = [];
+    let timerChange = [];
 
     const options = toOptions(`
       * . .
@@ -442,6 +446,12 @@ describe('minesweeper', () => {
     `);
 
     beforeEach(() => {
+      siCalls = [];
+      ciCalls = [];
+      gameStateChanges = [];
+      cellStateChanges = [];
+      remainingMineCountChange = [];
+      timerChange = [];
       global.setInterval = (cb, time) => {
         siCalls.push([cb, time]);
         return 'siToken';
@@ -450,6 +460,10 @@ describe('minesweeper', () => {
         ciCalls.push(token);
       };
       game = create(options);
+      game.onGameStateChange((newState, oldState) => { gameStateChanges.push([oldState, newState]); });
+      game.onCellStateChange((cell, newState, oldState) => { cellStateChanges.push([cell, oldState, newState]); });
+      game.onRemainingMineCountChange((newCount, oldCount) => { remainingMineCountChange.push([oldCount, newCount]); });
+      game.onTimerChange((newTime, oldTime) => { timerChange.push([oldTime, newTime]); });
     });
 
     afterEach(() => {
@@ -462,12 +476,30 @@ describe('minesweeper', () => {
       expect(game.reveal([1, 1])).toEqual(gameStates.STARTED);
       expect(siCalls).toNotEqual([]);
       siCalls[0][0]();
+      expect(gameStateChanges).toEqual([
+        [gameStates.NOT_STARTED, gameStates.STARTED]
+      ]);
     });
 
-    it('should notify all callbacks when game is reset', () => {
+    it('should disable setInterval when reset', () => {
       expect(game.reveal([1, 1])).toEqual(gameStates.STARTED);
       game.reset();
       expect(ciCalls).toEqual(['siToken']);
+    });
+
+    it('should fire timer event when reset', () => {
+      expect(game.reveal([1, 1])).toEqual(gameStates.STARTED);
+      game.reset();
+      expect(timerChange).toEqual([[0, 0]]);
+    });
+
+    it('should fire game change event when reset', () => {
+      expect(game.reveal([1, 1])).toEqual(gameStates.STARTED);
+      game.reset();
+      expect(gameStateChanges).toEqual([
+        [gameStates.NOT_STARTED, gameStates.STARTED],
+        [gameStates.STARTED, gameStates.NOT_STARTED]
+      ]);
     });
   });
 });
