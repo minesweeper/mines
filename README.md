@@ -49,3 +49,4 @@ var mines = require('./dist');
 * 0.4.0 Full implementation of game with marking mines and replace cell state with emoji
 * 0.5.0 Added chording to the game to support chording via double clicking the UI
 * 1.0.0 restructure module to expose create, cellStates and gameStates
+* 1.0.1 fire all events when game is reset
