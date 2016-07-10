@@ -501,5 +501,22 @@ describe('minesweeper', () => {
         [gameStates.STARTED, gameStates.NOT_STARTED]
       ]);
     });
+
+    it('should fire all cell state change events when reset', () => {
+      expect(game.reveal([1, 1])).toEqual(gameStates.STARTED);
+      game.reset();
+      expect(cellStateChanges).toEqual([
+        [[1, 1], cellStates.UNKNOWN, cellStates[2]],
+        [[0, 0], cellStates.UNKNOWN, cellStates.UNKNOWN],
+        [[0, 1], cellStates.UNKNOWN, cellStates.UNKNOWN],
+        [[0, 2], cellStates.UNKNOWN, cellStates.UNKNOWN],
+        [[1, 0], cellStates.UNKNOWN, cellStates.UNKNOWN],
+        [[1, 1], cellStates[2], cellStates.UNKNOWN],
+        [[1, 2], cellStates.UNKNOWN, cellStates.UNKNOWN],
+        [[2, 0], cellStates.UNKNOWN, cellStates.UNKNOWN],
+        [[2, 1], cellStates.UNKNOWN, cellStates.UNKNOWN],
+        [[2, 2], cellStates.UNKNOWN, cellStates.UNKNOWN]
+      ]);
+    });
   });
 });

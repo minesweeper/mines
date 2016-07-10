@@ -10,11 +10,12 @@ export default (options) => {
   const remainingMineCountListeners = [];
   const timerChangeListeners = [];
   const config = configuration(options);
+  const visibleField = field(config.dimensions, config.mine_count);
+
   let intervalToken = null;
   let state = gameStates.NOT_STARTED;
   let timeStarted = null;
   let elapsedTime = 0;
-  let visibleField = field(config.dimensions, config.mine_count);
 
   const finished = () => (state === gameStates.WON || state === gameStates.LOST);
 
@@ -35,7 +36,7 @@ export default (options) => {
     state = gameStates.NOT_STARTED;
     timeStarted = null;
     elapsedTime = 0;
-    visibleField = field(config.dimensions, config.mine_count);
+    visibleField.reset(cellStateChangeListeners);
     if (intervalToken) {
       global.clearInterval(intervalToken);
       intervalToken = null;

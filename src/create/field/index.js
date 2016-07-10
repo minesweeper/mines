@@ -42,6 +42,17 @@ export default (dimensions, mineCount) => {
 
   const notifyListeners = (listeners, cell, state, previous_state) => map(listeners, (cb) => { cb(cell, state, previous_state); });
 
+  const reset = (listeners) => {
+    mines = null;
+    times(row_count, (row) => {
+      times(column_count, (col) => {
+        const previousState = state[row][col];
+        state[row][col] = cellStates.UNKNOWN;
+        notifyListeners(listeners, [row, col], state[row][col], previousState);
+      });
+    });
+  };
+
   const setCellState = ([row, column], new_state, listeners) => {
     const previous_state = state[row][column];
     state[row][column] = new_state;
@@ -150,16 +161,8 @@ export default (dimensions, mineCount) => {
 
   const allCellsWithoutMinesRevealed = () => revealedCells() === (total_cells - totalMines);
 
-  return {
+  return { placeMines, remainingMineCount, cellState, reveal, mark, chord, revealed, allCellsWithoutMinesRevealed, reset,
     minesPlaced: () => !isNil(mines),
-    placeMines: placeMines,
-    remainingMineCount: remainingMineCount,
-    cellState: cellState,
-    reveal: reveal,
-    mark: mark,
-    chord: chord,
-    revealed: revealed,
-    renderAsString: () => renderAsString(state),
-    allCellsWithoutMinesRevealed: allCellsWithoutMinesRevealed
+    renderAsString: () => renderAsString(state)
   };
 };
