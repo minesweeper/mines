@@ -429,10 +429,11 @@ describe('minesweeper', () => {
     });
   });
 
-  describe('in test mode (with fixed mines)', () => {
+  describe('in test mode with all callbacks', () => {
     const si = global.setInterval;
-    let timerCallback = null;
-    let timerInterval = null;
+    const ci = global.clearInterval;
+    const siCalls = [];
+    const ciCalls = [];
 
     const options = toOptions(`
       * . .
@@ -442,27 +443,31 @@ describe('minesweeper', () => {
 
     beforeEach(() => {
       global.setInterval = (cb, time) => {
-        timerCallback = cb;
-        timerInterval = time;
+        siCalls.push([cb, time]);
+        return 'siToken';
+      };
+      global.clearInterval = (token) => {
+        ciCalls.push(token);
       };
       game = create(options);
     });
 
-    afterEach(() => { global.setInterval = si; });
+    afterEach(() => {
+      global.setInterval = si;
+      global.clearInterval = ci;
+    });
 
     it('should start timer when game starts', () => {
-      expect(timerCallback).toBe(null);
-      expect(timerInterval).toBe(null);
-      expect(game.started()).toBe(null);
+      expect(game.started()).toEqual(null);
+      expect(game.reveal([1, 1])).toEqual(gameStates.STARTED);
+      expect(siCalls).toNotEqual([]);
+      siCalls[0][0]();
+    });
 
-      expect(game.reveal([1, 1])).toBe(gameStates.STARTED);
-
-      expect(timerCallback).toNotBe(null);
-      expect(timerInterval).toBe(500);
-
-      timerCallback();
-
-      expect(game.started()).toNotBe(null);
+    it('should notify all callbacks when game is reset', () => {
+      expect(game.reveal([1, 1])).toEqual(gameStates.STARTED);
+      game.reset();
+      expect(ciCalls).toEqual(['siToken']);
     });
   });
 });

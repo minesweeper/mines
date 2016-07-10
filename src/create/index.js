@@ -10,6 +10,7 @@ export default (options) => {
   const remainingMineCountListeners = [];
   const timerChangeListeners = [];
   const config = configuration(options);
+  let intervalToken = null;
   let state = gameStates.NOT_STARTED;
   let timeStarted = null;
   let elapsedTime = 0;
@@ -26,6 +27,10 @@ export default (options) => {
     timeStarted = null;
     elapsedTime = 0;
     visibleField = field(config.dimensions, config.mine_count);
+    if (intervalToken) {
+      global.clearInterval(intervalToken);
+      intervalToken = null;
+    }
   };
 
   const appendListener = (listeners, cb) => { listeners.push(cb); };
@@ -41,7 +46,7 @@ export default (options) => {
   const onTimerChange = appendListener.bind(null, timerChangeListeners);
 
   const startTimer = () => {
-    global.setInterval(() => {
+    intervalToken = global.setInterval(() => {
       if (!timeStarted) { timeStarted = new Date().getTime(); }
       if (state === gameStates.STARTED) {
         const previousElapsedTime = elapsedTime;
