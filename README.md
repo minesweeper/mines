@@ -12,7 +12,7 @@ npm install mines --save
 
 ```javascript
 var mines = require('mines');
-var m = mines.create();
+var m = mines.create({preset: 'expert'});
 m.onGameStateChange(
   function (state, oldState) {
     console.log('game changed', oldState, state);

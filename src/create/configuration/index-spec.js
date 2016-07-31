@@ -1,7 +1,7 @@
 import configuration from '.';
 
 describe('configuration', () => {
-  it('should default to expert profile', () => {
+  it('should default to expert preset', () => {
     const config = configuration();
     assert.deepEqual(config.dimensions, [16, 30]);
     assert.equal(config.mine_count, 99);

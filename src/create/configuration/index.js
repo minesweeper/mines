@@ -1,6 +1,6 @@
 import {isNil} from 'lodash';
 
-const profiles = {
+const presets = {
   beginner: {
     dimensions: [9, 9],
     mine_count: 10
@@ -30,14 +30,14 @@ const determine_mine_count = (mines, mine_count) => (
 );
 
 const configuration = (options) => {
-  const specifiedOrEmptyOptions = options || { profile: 'expert' };
+  const specifiedOrEmptyOptions = options || { preset: 'expert' };
   const mines = specifiedOrEmptyOptions.mines;
-  const profile = profiles[specifiedOrEmptyOptions.profile];
+  const preset = presets[specifiedOrEmptyOptions.preset];
   const result = {};
 
-  if (profile) {
-    result.dimensions = profile.dimensions;
-    result.mine_count = profile.mine_count;
+  if (preset) {
+    result.dimensions = preset.dimensions;
+    result.mine_count = preset.mine_count;
   } else {
     result.dimensions = specifiedOrEmptyOptions.dimensions;
     result.mine_count = specifiedOrEmptyOptions.mine_count;
