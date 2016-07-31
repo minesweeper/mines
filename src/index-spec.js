@@ -493,6 +493,16 @@ describe('minesweeper', () => {
       expect(timerChange).toEqual([[0, 0]]);
     });
 
+    it('should fire remaining mine count event when reset', () => {
+      expect(game.reveal([1, 1])).toEqual(gameStates.STARTED);
+      expect(game.mark([0, 0])).toEqual(gameStates.STARTED);
+      game.reset();
+      expect(remainingMineCountChange).toEqual([
+        [2, 1],
+        [1, 2]
+      ]);
+    });
+
     it('should fire game change event when reset', () => {
       expect(game.reveal([1, 1])).toEqual(gameStates.STARTED);
       game.reset();

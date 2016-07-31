@@ -33,6 +33,7 @@ export default (options) => {
   const reset = () => {
     const previousElapsedTime = elapsedTime;
     const previousState = state;
+    const previousRemainingMines = visibleField.remainingMineCount();
     state = gameStates.NOT_STARTED;
     timeStarted = null;
     elapsedTime = 0;
@@ -43,6 +44,7 @@ export default (options) => {
     }
     notifyTimerChangeListeners(elapsedTime, previousElapsedTime);
     notifyGameStateChangeListeners(state, previousState);
+    notifyRemainingMineCountListeners(visibleField.remainingMineCount(), previousRemainingMines);
   };
 
   const onGameStateChange = appendListener.bind(null, gameStateChangeListeners);
