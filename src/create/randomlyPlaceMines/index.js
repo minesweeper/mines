@@ -1,6 +1,6 @@
 import {times, shuffle, take, isEqual} from 'lodash';
 
-export default (configuration, row, column) => {
+export default (configuration, row, column, shuffleMethod = shuffle) => {
   const [row_count, column_count] = configuration.dimensions;
   const cells = [];
 
@@ -12,5 +12,5 @@ export default (configuration, row, column) => {
     });
   });
 
-  return take(shuffle(cells), configuration.mine_count);
+  return take(shuffleMethod(cells), configuration.mine_count);
 };
