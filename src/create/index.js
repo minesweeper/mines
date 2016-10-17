@@ -61,7 +61,7 @@ export default (options) => {
         elapsedTime = now - timeStarted;
         notifyTimerChangeListeners(elapsedTime, previousElapsedTime);
       }
-    }, 500);
+    }, 1000);
   };
 
   const ensureMinesHaveBeenPlaced = ([row, column]) => {

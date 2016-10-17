@@ -54,3 +54,4 @@ var mines = require('./dist');
 * 1.1.0 replace 'profile' with 'preset' and fire remaining mine count event when game is reset
 * 1.1.1 change timer to fire once per second
 * 1.1.2 update timer to begin before setInterval to avoid a delay in the timer
+* 1.1.3 change timer back to fire once per second
