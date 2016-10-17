@@ -53,15 +53,15 @@ export default (options) => {
   const onTimerChange = appendListener.bind(null, timerChangeListeners);
 
   const startTimer = () => {
+    if (!timeStarted) { timeStarted = new Date().getTime(); }
     intervalToken = global.setInterval(() => {
-      if (!timeStarted) { timeStarted = new Date().getTime(); }
       if (state === gameStates.STARTED) {
         const previousElapsedTime = elapsedTime;
         const now = new Date().getTime();
         elapsedTime = now - timeStarted;
         notifyTimerChangeListeners(elapsedTime, previousElapsedTime);
       }
-    }, 1000);
+    }, 500);
   };
 
   const ensureMinesHaveBeenPlaced = ([row, column]) => {
